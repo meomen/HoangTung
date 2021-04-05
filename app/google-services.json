@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "257411986999",
+    "firebase_url": "https://carpool-748bb-default-rtdb.firebaseio.com",
+    "project_id": "carpool-748bb",
+    "storage_bucket": "carpool-748bb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257411986999:android:427261ca3b17587debf1b2",
+        "android_client_info": {
+          "package_name": "com.hypertrack.ridesharing.driver.android.github"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "257411986999-k1mlavttmth2rn4g1mb8l9jsndua2hn3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2lchZpGy8XJ8FPgS8FsuSPphxeHtO4PA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257411986999-k1mlavttmth2rn4g1mb8l9jsndua2hn3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257411986999:android:029558e49c1b9304ebf1b2",
+        "android_client_info": {
+          "package_name": "com.sjsu.se195.uniride"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "257411986999-k1mlavttmth2rn4g1mb8l9jsndua2hn3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_ ": "AIzaSyD2lchZpGy8XJ8FPgS8FsuSPphxeHtO4PA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257411986999-k1mlavttmth2rn4g1mb8l9jsndua2hn3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257411986999:android:cd8e50e454ac89dcebf1b2",
+        "android_client_info": {
+          "package_name": "firebase.gopool"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "257411986999-k1mlavttmth2rn4g1mb8l9jsndua2hn3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2lchZpGy8XJ8FPgS8FsuSPphxeHtO4PA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257411986999-k1mlavttmth2rn4g1mb8l9jsndua2hn3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

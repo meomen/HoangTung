@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<androidx.coordinatorlayout.widget.CoordinatorLayout-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent">-->
+
+<!--    <RelativeLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:id="@+id/relativeLayout1">-->
+
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:id="@+id/relativeLayout2">-->
+<!--            <include layout="@layout/layout_center_login"/>-->
+<!--        </RelativeLayout>-->
+<!--    </RelativeLayout>-->
+
+<!--</androidx.coordinatorlayout.widget.CoordinatorLayout>-->
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginBottom="12dp"
+    android:background="@color/white"
+    tools:context=".Login.LoginActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_marginTop="80.2dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_car2"/>
+
+        <firebase.gopool.Customfonts.MyTextView_SF_Pro_Display_Medium
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome Back!"
+            android:textColor="#323643"
+            android:textSize="21.3sp"/>
+
+        <firebase.gopool.Customfonts.MyTextView_SF_Pro_Display_Light
+            android:layout_gravity="center"
+            android:layout_marginTop="9.6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15.4sp"
+            android:textColor="#606470"
+            android:text="Login to continue using Carpooling"/>
+
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="123.1dp"
+            android:layout_marginLeft="28.7dp"
+            android:layout_marginRight="28.9dp"
+            app:cardElevation="1dp"
+            app:cardCornerRadius="6dp"
+            app:cardBackgroundColor="@color/white">
+
+            <LinearLayout
+                android:id="@+id/linear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/rect"
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_marginTop="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/mail"/>
+
+                <EditText
+                    android:id="@+id/emailEditText"
+                    android:background="#00000000"
+                    android:layout_marginLeft="10dp"
+                    android:hint="Email"
+                    android:textColorHint="@color/TransparentWhite"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="19.2dp"
+            android:layout_marginLeft="28.7dp"
+            android:layout_marginRight="28.9dp"
+            app:cardElevation="1dp"
+            app:cardCornerRadius="6dp"
+            app:cardBackgroundColor="@color/white">
+
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/rect"
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_marginTop="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/lock"/>
+
+                <EditText
+                    android:id="@+id/passwordEditText"
+                    android:background="#00000000"
+                    android:layout_marginLeft="10dp"
+                    android:inputType="textPassword"
+                    android:hint="Password"
+                    android:textColorHint="@color/TransparentWhite"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+
+        <TextView
+            android:layout_gravity="right"
+            android:layout_marginTop="19.2dp"
+            android:layout_marginRight="28.9dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot password?"
+            android:textColor="#606470"
+            android:textSize="15.4sp"/>
+
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginTop="40.2dp"
+            android:layout_marginLeft="28.7dp"
+            android:layout_marginRight="28.9dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log In"
+            android:background="@drawable/rect_blue"
+            android:textColor="#fbfbfb"
+            android:textSize="15.4sp"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+
+        <firebase.gopool.Customfonts.MyTextView_SF_Pro_Display_Light
+            android:layout_gravity="center"
+            android:textSize="15.4dp"
+            android:textColor="#606470"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New User?" />
+
+        <TextView
+            android:id="@+id/btn_signup"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15.4sp"
+            android:textColor="#3277d8"
+            android:text="Sign up for a new account" />
+
+    </LinearLayout>
+    <androidx.cardview.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view_loading"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp"
+        android:layout_width="150dp"
+        android:layout_height="170dp"
+        card_view:cardCornerRadius="13dp">
+        <ProgressBar
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:indeterminateTint="@color/link_blue"
+            android:id="@+id/loginRequestProgressBar"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/loadingPleaseWait"
+            android:textColor="@color/black"
+            android:text="Loading..."
+            android:textAlignment="center"
+            android:layout_gravity="bottom"
+            android:layout_centerHorizontal="true"
+            android:textSize="15sp"
+            android:layout_marginBottom="7dp"/>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>
