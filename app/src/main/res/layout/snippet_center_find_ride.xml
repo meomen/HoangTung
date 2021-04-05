@@ -237,7 +237,7 @@
                                 android:layout_width="20dp"
                                 android:layout_gravity="center"
                                 android:layout_height="20dp"
-                                android:background="@drawable/ic_car"
+                                android:background="@drawable/ic_car_bitmap"
                                 android:backgroundTint="@color/blue"
                                 android:layout_marginLeft="14dp"/>
 

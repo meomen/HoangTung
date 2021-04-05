@@ -32,61 +32,64 @@
             </fragment>
 
             <!-- Search bar -->
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
 
-                    <RelativeLayout
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginRight="20dp">
+
+                    <RadioGroup
+                        android:id="@+id/toggle"
                         android:layout_width="match_parent"
-                        android:layout_height="35dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginTop="15dp">
+                        android:layout_height="30dp"
+                        android:background="@drawable/pink_out_line"
+                        android:checkedButton="@+id/findButton"
+                        android:orientation="horizontal">
 
-                        <RadioGroup
-                            android:checkedButton="@+id/findButton"
-                            android:id="@+id/toggle"
-                            android:layout_width="match_parent"
-                            android:layout_height="30dp"
-                            android:background="@drawable/pink_out_line"
-                            android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/findButton"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="1dp"
+                            android:layout_marginTop="1dp"
+                            android:layout_marginBottom="1dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/toggle_widget_background"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:text="Find a ride"
+                            android:textColor="@color/white" />
 
-                            <RadioButton
-                                android:layout_marginTop="1dp"
-                                android:layout_marginBottom="1dp"
-                                android:layout_marginLeft="1dp"
-                                android:id="@+id/findButton"
-                                android:background="@drawable/toggle_widget_background"
-                                android:layout_width="0dp"
-                                android:layout_height="match_parent"
-                                android:layout_weight="1"
-                                android:button="@null"
-                                android:gravity="center"
-                                android:text="Find a ride"
-                                android:textColor="@color/white" />
-
-                            <RadioButton
-                                android:layout_marginRight="1dp"
-                                android:layout_marginTop="1dp"
-                                android:layout_marginBottom="1dp"
-                                android:id="@+id/offerButton"
-                                android:layout_width="0dp"
-                                android:layout_height="match_parent"
-                                android:layout_weight="1"
-                                android:background="@drawable/toggle_widget_background"
-                                android:button="@null"
-                                android:gravity="center"
-                                android:text="Offer ride"
-                                android:textColor="@color/white" />
-                        </RadioGroup>
+                        <RadioButton
+                            android:id="@+id/offerButton"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="1dp"
+                            android:layout_marginRight="1dp"
+                            android:layout_marginBottom="1dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/toggle_widget_background"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:text="Offer ride"
+                            android:textColor="@color/white" />
+                    </RadioGroup>
                 </RelativeLayout>
             </LinearLayout>
 
-
             <LinearLayout
+                android:id="@+id/layout_search"
                 android:layout_width="match_parent"
-                android:layout_height="180dp">
+                android:layout_height="180dp"
+                android:orientation="horizontal">
                 <androidx.cardview.widget.CardView
                     card_view:cardElevation="20dp"
                     xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -186,9 +189,24 @@
                     android:layout_marginBottom="100dp"
                     android:id="@+id/directionsBtn"/>
             </LinearLayout>
-            
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="STOP Search"
+                android:id="@+id/btn_stopsearch"
+                android:clickable="false"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_alignParentBottom="true"
+                android:textColor="@android:color/white"
+                android:background="@drawable/btn_style_2" />
 
         </RelativeLayout>
+
 
         <!-- bottom navigation -->
         <include layout="@layout/layout_bottom_navigation_view"/>

@@ -14,6 +14,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.libraries.places.compat.PlaceBufferResponse;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -142,6 +144,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private RadioGroup mRideSelectionRadioGroup;
     private BottomNavigationView bottomNavigationView;
     private ImageView mLocationBtn;
+    private Button mStopSearchBtn;
 
     //Firebase
     private FirebaseAuth mAuth;
@@ -193,7 +196,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationTextView.setOnFocusChangeListener((view, motionEvent) -> {
             typeofaction="from";
         });
+
         mSearchBtn = (Button) findViewById(R.id.searchBtn);
+        mStopSearchBtn = (Button) findViewById(R.id.btn_stopsearch);
         mSwitchTextBtn = (Button) findViewById(R.id.switchTextBtn);
         mDirectionsBtn = (Button) findViewById(R.id.directionsBtn);
         mRideSelectionRadioGroup = (RadioGroup) findViewById(R.id.toggle);
@@ -239,12 +244,20 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     offerRideActivity.putExtras(b);
                     startActivity(offerRideActivity);
                 } else if (whichIndex == R.id.findButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
-                    Intent findRideActivity = new Intent(mContext, SearchRideActivity.class);
-                    findRideActivity.putExtra("LOCATION", locationTextView.getText().toString());
-                    findRideActivity.putExtra("DESTINATION", destinationTextview.getText().toString());
-                    findRideActivity.putExtra("currentLatitue", currentLatitude);
-                    findRideActivity.putExtra("currentLongtitude", currentLongtitude);
-                    startActivity(findRideActivity);
+//                    Intent findRideActivity = new Intent(mContext, SearchRideActivity.class);
+//                    findRideActivity.putExtra("LOCATION", locationTextView.getText().toString());
+//                    findRideActivity.putExtra("DESTINATION", destinationTextview.getText().toString());
+//                    findRideActivity.putExtra("currentLatitue", currentLatitude);
+//                    findRideActivity.putExtra("currentLongtitude", currentLongtitude);
+//                    startActivity(findRideActivity);
+
+
+                    Circle circle = mMap.addCircle(new CircleOptions()
+                            .center(new LatLng(currentLatitude, currentLongtitude))
+                            .radius(100)
+                            .strokeWidth(0f)
+                            .fillColor(0x550000FF));
+                    moveCameraNoMarker(new LatLng(currentLatitude, currentLongtitude),18f,"Range Search");
                 } else {
                     Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
                 }
