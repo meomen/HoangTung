@@ -133,6 +133,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Polyline currentPolyline;
     private MarkerOptions place1, place2;
     private LatLng currentLocation;
+    private Circle circle;
 
     private String directionsRequestUrl;
     private String userID;
@@ -211,57 +212,57 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        mSwitchTextBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
-                    String tempDestination1 = destinationTextview.getText().toString();
-                    String tempDestination12 = locationTextView.getText().toString();
+        mSwitchTextBtn.setOnClickListener(v -> {
+            if (destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
+                String tempDestination1 = destinationTextview.getText().toString();
+                String tempDestination12 = locationTextView.getText().toString();
 
-                    locationTextView.setText(tempDestination1);
-                    destinationTextview.setText(tempDestination12);
+                locationTextView.setText(tempDestination1);
+                destinationTextview.setText(tempDestination12);
 
-                    locationTextView.dismissDropDown();
-                    destinationTextview.dismissDropDown();
-                } else {
-                    Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
-                }
+                locationTextView.dismissDropDown();
+                destinationTextview.dismissDropDown();
+            } else {
+                Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
             }
         });
 
-        mSearchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int whichIndex = mRideSelectionRadioGroup.getCheckedRadioButtonId();
-                if (whichIndex == R.id.offerButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
-                    Intent offerRideActivity = new Intent(mContext, OfferRideFragment.class);
-                    offerRideActivity.putExtra("LOCATION", destinationTextview.getText().toString());
-                    offerRideActivity.putExtra("DESTINATION", locationTextView.getText().toString());
-                    offerRideActivity.putExtra("currentLatitue", currentLatitude);
-                    offerRideActivity.putExtra("currentLongtitude", currentLongtitude);
-                    Bundle b = new Bundle();
-                    b.putParcelable("LatLng", currentLocation);
-                    offerRideActivity.putExtras(b);
-                    startActivity(offerRideActivity);
-                } else if (whichIndex == R.id.findButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
+        mSearchBtn.setOnClickListener(v -> {
+            int whichIndex = mRideSelectionRadioGroup.getCheckedRadioButtonId();
+            if (whichIndex == R.id.offerButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
+                Intent offerRideActivity = new Intent(mContext, OfferRideFragment.class);
+                offerRideActivity.putExtra("LOCATION", destinationTextview.getText().toString());
+                offerRideActivity.putExtra("DESTINATION", locationTextView.getText().toString());
+                offerRideActivity.putExtra("currentLatitue", currentLatitude);
+                offerRideActivity.putExtra("currentLongtitude", currentLongtitude);
+                Bundle b = new Bundle();
+                b.putParcelable("LatLng", currentLocation);
+                offerRideActivity.putExtras(b);
+                startActivity(offerRideActivity);
+            } else if (whichIndex == R.id.findButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
 //                    Intent findRideActivity = new Intent(mContext, SearchRideActivity.class);
 //                    findRideActivity.putExtra("LOCATION", locationTextView.getText().toString());
 //                    findRideActivity.putExtra("DESTINATION", destinationTextview.getText().toString());
 //                    findRideActivity.putExtra("currentLatitue", currentLatitude);
 //                    findRideActivity.putExtra("currentLongtitude", currentLongtitude);
 //                    startActivity(findRideActivity);
+                if (circle != null) circle.remove();
+                circle = mMap.addCircle(new CircleOptions()
+                        .center(new LatLng(currentLatitude, currentLongtitude))
+                        .radius(200)
+                        .strokeWidth(0f)
+                        .fillColor(0x550000FF));
+                moveCameraNoMarker(new LatLng(currentLatitude, currentLongtitude),17f,"Range Search");
+                mStopSearchBtn.setVisibility(View.VISIBLE);
 
-
-                    Circle circle = mMap.addCircle(new CircleOptions()
-                            .center(new LatLng(currentLatitude, currentLongtitude))
-                            .radius(100)
-                            .strokeWidth(0f)
-                            .fillColor(0x550000FF));
-                    moveCameraNoMarker(new LatLng(currentLatitude, currentLongtitude),18f,"Range Search");
-                } else {
-                    Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
-                }
+            } else {
+                Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        mStopSearchBtn.setOnClickListener(view -> {
+            mStopSearchBtn.setVisibility(View.GONE);
+            if (circle != null) circle.remove();
         });
 
         initImageLoader();
