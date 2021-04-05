@@ -8,7 +8,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:365494466352:android:1c55d05394aaf258abbaf5",
+        "mobilesdk_app_id": "1:365494466352:android:ac3777dea802387fabbaf5",
         "android_client_info": {
           "package_name": "firebase.gopool"
         }

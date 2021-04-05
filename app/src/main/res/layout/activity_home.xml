@@ -205,6 +205,20 @@
                 android:textColor="@android:color/white"
                 android:background="@drawable/btn_style_2" />
 
+            <com.andremion.counterfab.CounterFab
+                android:id="@+id/fab_counter_car"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_car_white"
+                android:layout_above="@+id/btn_stopsearch"
+                android:layout_alignParentEnd="true"
+                app:badgeBackgroundColor="@color/bt_blue_pressed"
+                app:badgeTextColor="@color/white"
+                app:badgePosition="RightTop"
+                android:layout_margin="16dp" />
+
+
         </RelativeLayout>
 
 

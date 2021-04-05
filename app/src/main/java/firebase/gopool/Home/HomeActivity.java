@@ -14,6 +14,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import androidx.annotation.NonNull;
 
+import com.andremion.counterfab.CounterFab;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.libraries.places.compat.PlaceBufferResponse;
@@ -82,8 +83,11 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -94,9 +98,11 @@ import firebase.gopool.Map.PlaceInfo;
 import firebase.gopool.MapDirectionHelper.FetchURL;
 import firebase.gopool.MapDirectionHelper.TaskLoadedCallback;
 import firebase.gopool.R;
+import firebase.gopool.Service.RequestCarService;
 import firebase.gopool.Utils.BottomNavigationViewHelper;
 import firebase.gopool.Utils.UniversalImageLoader;
 import firebase.gopool.dialogs.WelcomeDialog;
+import firebase.gopool.models.Request;
 import firebase.gopool.models.Token;
 import firebase.gopool.models.data;
 
@@ -146,6 +152,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private BottomNavigationView bottomNavigationView;
     private ImageView mLocationBtn;
     private Button mStopSearchBtn;
+    private CounterFab mCounterCar;
 
     //Firebase
     private FirebaseAuth mAuth;
@@ -204,6 +211,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mDirectionsBtn = (Button) findViewById(R.id.directionsBtn);
         mRideSelectionRadioGroup = (RadioGroup) findViewById(R.id.toggle);
         mLocationBtn = (ImageView) findViewById(R.id.locationImage);
+        mCounterCar = (CounterFab) findViewById(R.id.fab_counter_car);
 
         mLocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -254,6 +262,11 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .fillColor(0x550000FF));
                 moveCameraNoMarker(new LatLng(currentLatitude, currentLongtitude),17f,"Range Search");
                 mStopSearchBtn.setVisibility(View.VISIBLE);
+                mCounterCar.setVisibility(View.VISIBLE);
+                mCounterCar.setCount(1);
+
+                RequestCarService requestCarService= new RequestCarService();
+                requestCarService.searchCar(this,new LatLng(21.037696, 105.773876),mMap);
 
             } else {
                 Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
@@ -262,7 +275,23 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mStopSearchBtn.setOnClickListener(view -> {
             mStopSearchBtn.setVisibility(View.GONE);
+            mCounterCar.setVisibility(View.GONE);
             if (circle != null) circle.remove();
+
+        });
+
+        mCounterCar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, SearchResultsActivity.class);
+                intent.putExtra("LOCATION", locationTextView.getText().toString());
+                intent.putExtra("DESTINATION", destinationTextview.getText().toString());
+                intent.putExtra("sameGender", false);
+                Date currentTime = Calendar.getInstance().getTime();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yy", Locale.UK);
+                intent.putExtra("DATE", simpleDateFormat.format(currentTime.getTime()));
+                startActivity(intent);
+            }
         });
 
         initImageLoader();
