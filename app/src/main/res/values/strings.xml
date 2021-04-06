@@ -36,7 +36,7 @@
     <string name="API_CHECK_OUT">bqqgfkwk6ttswdk9</string>
 
     <!-- Google maps API key -->
-<!--    <string name="google_maps_api_key">AIzaSyB72sjEH0HojCDNY9lV9F3hDgbJQGJBWb0</string>-->
+    <!--    <string name="google_maps_api_key">AIzaSyB72sjEH0HojCDNY9lV9F3hDgbJQGJBWb0</string>-->
     <string name="google_maps_api_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDDyFy-V-_kDmxyu7fm1-4YkbSfo4LHRlo</string>
     <string name="title_activity_settings">Settings</string>
 
@@ -126,4 +126,5 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_activity_payment">PaymentActivity</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

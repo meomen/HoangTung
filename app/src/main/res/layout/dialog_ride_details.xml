@@ -257,8 +257,18 @@
                     <Button
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="Start"
+                        android:id="@+id/btn_start_trip"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/btn_style_2" />
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:text="Edit ride"
-                        android:id="@+id/dialogConfirm"
+                        android:id="@+id/btn_edit_ride"
                         android:layout_marginRight="16dp"
                         android:layout_marginLeft="16dp"
                         android:layout_marginBottom="16dp"
@@ -273,7 +283,8 @@
                         android:layout_marginBottom="10dp"
                         android:layout_gravity="center"
                         android:text="Dismiss"
-                        android:id="@+id/dialogCancel"/>
+                        android:id="@+id/dialogCancel"
+                        android:visibility="gone"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

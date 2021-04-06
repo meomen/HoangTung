@@ -23,12 +23,16 @@ public class OfferRide {
     private int completeRides;
     private int userRating;
     private String duration;
+    private double pickuplongitude;
+    private double pickuplatitude;
+    private double toLat;
+    private double toLng;
 
     public OfferRide() { }
 
     public OfferRide(String rideID, String user_id, String username, String currentLocation, String destination, String dateOfJourney, int seatsAvailable, String licencePlate,
                      double currentlongitude, double currentlatitude, boolean sameGender, int luggageAllowance, String car, String pickupTime, int extraTime, String profile_picture, int cost,
-                     int completeRides, int userRating, String duration, String pickupLocation) {
+                     int completeRides, int userRating, String duration, String pickupLocation, double pickuplatitude, double pickuplongitude, double toLat, double toLng) {
         this.rideID = rideID;
         this.user_id = user_id;
         this.username = username;
@@ -50,6 +54,55 @@ public class OfferRide {
         this.completeRides = completeRides;
         this.userRating = userRating;
         this.duration = duration;
+        this.pickuplatitude = pickuplatitude;
+        this.pickuplongitude = pickuplongitude;
+        this.toLat = toLat;
+        this.toLng = toLng;
+    }
+
+    public OfferRide(String rideID, String user_id, String username, String currentLocation, String destination, String dateOfJourney, int seatsAvailable, String licencePlate,
+                     double currentlongitude, double currentlatitude, boolean sameGender, int luggageAllowance, String car, String pickupTime, int extraTime, String profile_picture, int cost,
+                     int completeRides, int userRating, String duration, String pickupLocation, double pickuplatitude, double pickuplongitude) {
+        this.rideID = rideID;
+        this.user_id = user_id;
+        this.username = username;
+        this.currentLocation = currentLocation;
+        this.destination = destination;
+        this.dateOfJourney = dateOfJourney;
+        this.seatsAvailable = seatsAvailable;
+        this.licencePlate = licencePlate;
+        this.currentlongitude = currentlongitude;
+        this.currentlatitude = currentlatitude;
+        this.sameGender = sameGender;
+        this.luggageAllowance = luggageAllowance;
+        this.car = car;
+        this.pickupTime = pickupTime;
+        this.pickupLocation = pickupLocation;
+        this.extraTime = extraTime;
+        this.profile_picture = profile_picture;
+        this.cost = cost;
+        this.completeRides = completeRides;
+        this.userRating = userRating;
+        this.duration = duration;
+        this.pickuplatitude = pickuplatitude;
+        this.pickuplongitude = pickuplongitude;
+    }
+
+
+    public double getToLat() {
+        return toLat;
+    }
+
+    public void setToLat(double toLat) {
+        this.toLat = toLat;
+    }
+
+    public double getToLng() {
+        return toLng;
+    }
+
+    public void setToLng(double toLng) {
+        this.toLng = toLng;
     }
 
     public String getRideID() {
@@ -218,6 +271,22 @@ public class OfferRide {
 
     public void setPickupLocation(String pickupLocation) {
         this.pickupLocation = pickupLocation;
+    }
+
+    public double getPickuplongitude() {
+        return pickuplongitude;
+    }
+
+    public void setPickuplongitude(double pickuplongitude) {
+        this.pickuplongitude = pickuplongitude;
+    }
+
+    public double getPickuplatitude() {
+        return pickuplatitude;
+    }
+
+    public void setPickuplatitude(double pickuplatitude) {
+        this.pickuplatitude = pickuplatitude;
     }
 
     @Override

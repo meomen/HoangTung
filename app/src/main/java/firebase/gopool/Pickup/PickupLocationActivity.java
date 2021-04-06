@@ -161,6 +161,7 @@ public class PickupLocationActivity extends AppCompatActivity implements OnMapRe
     }
 
     private void getAddress(LatLng latLng) throws IOException {
+        Common.setPickupLatLng(latLng);
         geocoder = new Geocoder(mContext, Locale.getDefault());
 
         addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);

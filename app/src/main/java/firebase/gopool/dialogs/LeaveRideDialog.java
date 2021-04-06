@@ -23,6 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 import firebase.gopool.Booked.BookedActivity;
 import firebase.gopool.R;
 import firebase.gopool.Utils.FirebaseMethods;
+import firebase.gopool.models.OfferRide;
 
 public class LeaveRideDialog extends Dialog implements
         View.OnClickListener  {
@@ -108,6 +109,7 @@ public class LeaveRideDialog extends Dialog implements
             }
         });
     }
+
 
     private void updateSeatsRemaining(){
         mRef.child("availableRide").child(rideID).child("seatsAvailable").setValue(seatsAvailable + 1);

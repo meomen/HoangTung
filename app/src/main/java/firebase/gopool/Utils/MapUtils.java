@@ -23,4 +23,5 @@ public class MapUtils {
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_car_bitmap);
         return Bitmap.createScaledBitmap(bitmap, 50, 100, false);
     }
+
 }

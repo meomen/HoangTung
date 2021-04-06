@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainRelativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".Running.MapsActivity" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="16dp"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/btn_pickup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pick Up passenger"
+            android:textColor="@color/white"
+            android:layout_margin="16dp"
+            android:backgroundTint="#4BC2A2"
+            android:background="@drawable/btn_style_2"
+            android:layout_gravity="center_horizontal"/>
+        <Button
+            android:id="@+id/btn_getoff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Passenger get off"
+            android:textColor="@color/white"
+            android:layout_margin="16dp"
+            android:visibility="gone"
+            android:background="@drawable/btn_style_2"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
+</RelativeLayout>

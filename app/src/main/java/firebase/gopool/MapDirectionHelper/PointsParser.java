@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.JsonArray;
 
@@ -28,6 +29,7 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
     TaskLoadedCallback taskCallback;
     String directionMode = "driving";
     GoogleMap map;
+    Polyline polyline;
 
     public PointsParser(Context mContext, String directionMode, GoogleMap map) {
         this.taskCallback = (TaskLoadedCallback) mContext;
@@ -110,11 +112,19 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
 
         // Drawing polyline in the Google Map for the i-th route
         if (lineOptions != null) {
-            map.addPolyline(lineOptions);
+            polyline = map.addPolyline(lineOptions);
             taskCallback.onTaskDone(lineOptions);
 
         } else {
             Log.d("mylog", "without Polylines drawn");
         }
+    }
+
+    public Polyline getPolyline() {
+        return polyline;
+    }
+
+    public void setPolyline(Polyline polyline) {
+        this.polyline = polyline;
     }
 }

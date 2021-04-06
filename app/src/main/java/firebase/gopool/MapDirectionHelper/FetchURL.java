@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Polyline;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class FetchURL extends AsyncTask<String, Void, String> {
     Context mContext;
     GoogleMap mMap;
     String directionMode = "driving";
+    Polyline polyline;
 
     public FetchURL(Context mContext, GoogleMap mMap) {
         this.mContext = mContext;
@@ -48,6 +50,7 @@ public class FetchURL extends AsyncTask<String, Void, String> {
         PointsParser parserTask = new PointsParser(mContext, directionMode, mMap);
         // Invokes the thread for parsing the JSON data
         parserTask.execute(s);
+        polyline = parserTask.getPolyline();
     }
 
     private String downloadUrl(String strUrl) throws IOException {
@@ -79,5 +82,14 @@ public class FetchURL extends AsyncTask<String, Void, String> {
         }
         return data;
     }
+
+    public Polyline getPolyline() {
+        return polyline;
+    }
+
+    public void setPolyline(Polyline polyline) {
+        this.polyline = polyline;
+    }
+
 }
 

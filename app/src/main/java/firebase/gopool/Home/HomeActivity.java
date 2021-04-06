@@ -195,14 +195,14 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         typeofaction = "to";
         //Intitate widgets
         destinationTextview = (AutoCompleteTextView) findViewById(R.id.destinationTextview);
-        destinationTextview.setOnFocusChangeListener((view, motionEvent) -> {
-            typeofaction = "to";
-
-        });
         locationTextView = (AutoCompleteTextView) findViewById(R.id.locationTextview);
 
         locationTextView.setOnFocusChangeListener((view, motionEvent) -> {
             typeofaction="from";
+        });
+        destinationTextview.setOnFocusChangeListener((view, motionEvent) -> {
+            typeofaction = "to";
+
         });
 
         mSearchBtn = (Button) findViewById(R.id.searchBtn);
@@ -245,6 +245,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 offerRideActivity.putExtra("currentLongtitude", currentLongtitude);
                 Bundle b = new Bundle();
                 b.putParcelable("LatLng", currentLocation);
+                b.putParcelable("To",From.getLatLng());
                 offerRideActivity.putExtras(b);
                 startActivity(offerRideActivity);
             } else if (whichIndex == R.id.findButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
@@ -276,8 +277,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mStopSearchBtn.setOnClickListener(view -> {
             mStopSearchBtn.setVisibility(View.GONE);
             mCounterCar.setVisibility(View.GONE);
-            if (circle != null) circle.remove();
-
+            mMap.clear();
         });
 
         mCounterCar.setOnClickListener(new View.OnClickListener() {
@@ -293,6 +293,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(intent);
             }
         });
+
 
         initImageLoader();
         setupBottomNavigationView();
@@ -852,8 +853,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         DEFAULT_ZOOM,
                         "My location");
             }
-
-
 
     }
 

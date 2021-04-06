@@ -37,6 +37,7 @@ import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import firebase.gopool.Common.ApplicationContext;
+import firebase.gopool.Common.Common;
 import firebase.gopool.Pickup.PickupLocationActivity;
 import firebase.gopool.R;
 import firebase.gopool.Utils.FirebaseMethods;
@@ -75,7 +76,7 @@ public class OfferRideFragment extends AppCompatActivity {
     private int userRating, seatsID;
     private int completeRides;
     private double currentLatitude, currentLongtitude;
-    private LatLng currentLocation;
+    private LatLng currentLocation, toLocation;
 
 
     //GeoFire
@@ -207,9 +208,13 @@ public class OfferRideFragment extends AppCompatActivity {
                         !isStringNull(dateOfJourney) && dateOfJourney != null
                         && !isIntNull(extraTime)){
 
+
+                    double pickupLat = Common.getPickupLatLng().latitude;
+                    double pickupLng = Common.getPickupLatLng().longitude;
                     //Creates the ride information and adds it to the database
                     mFirebaseMethods.offerRide(userID , username, from, destination, dateOfJourney, seatsAvailable, licencePlate,  currentLongtitude, currentLatitude,
-                            sameGenderBoolean, luggageAllowance, car, pickupTime, extraTime, profile_photo, cost, completeRides, userRating, duration, pickupLocation);
+                            sameGenderBoolean, luggageAllowance, car, pickupTime, extraTime, profile_photo, cost, completeRides, userRating, duration, pickupLocation,
+                            pickupLat,pickupLng, toLocation.latitude, toLocation.longitude);
 
                     //Adds a notification to firebase
                     mFirebaseMethods.checkNotifications(getCurrentDate(), "You have created a ride!");
@@ -273,6 +278,7 @@ public class OfferRideFragment extends AppCompatActivity {
                 destinationId = getIntent().getStringExtra("LOCATION");
                 Bundle b = getIntent().getExtras();
                 currentLocation = b.getParcelable("LatLng");
+                toLocation = b.getParcelable("To");
                 Log.i(TAG, "getActivityData: " + currentLocation.toString());
 //            } else {
 //

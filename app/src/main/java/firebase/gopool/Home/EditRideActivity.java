@@ -34,6 +34,7 @@ import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import firebase.gopool.Common.ApplicationContext;
+import firebase.gopool.Common.Common;
 import firebase.gopool.R;
 import firebase.gopool.Utils.FirebaseMethods;
 import firebase.gopool.Utils.UniversalImageLoader;
@@ -178,9 +179,12 @@ public class EditRideActivity extends AppCompatActivity {
                         !isStringNull(dateOfJourney) && dateOfJourney != null
                         && !isIntNull(extraTime)){
 
+                    double pickupLat = Common.getPickupLatLng().latitude;
+                    double pickupLng = Common.getPickupLatLng().longitude;
+
                     //Creates the ride information and adds it to the database
                     mFirebaseMethods.offerRide(userID , username, from, destination, dateOfJourney, seatsAvailable, licencePlate,  currentLongtitude, currentLatitude,
-                            sameGenderBoolean, luggageAllowance, car, pickupTime, extraTime, profile_photo, cost, completeRides, userRating, duration, pickupLocation);
+                            sameGenderBoolean, luggageAllowance, car, pickupTime, extraTime, profile_photo, cost, completeRides, userRating, duration, pickupLocation,pickupLat,pickupLng);
 
                     //Adds a notification to firebase
                     mFirebaseMethods.checkNotifications(getCurrentDate(), "You have created a ride!");

@@ -6,19 +6,33 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import firebase.gopool.Account.ProfileActivity;
 import firebase.gopool.Home.EditRideActivity;
+import firebase.gopool.Model.AvailableRide;
 import firebase.gopool.R;
+import firebase.gopool.Running.MapsActivity;
+import firebase.gopool.models.OfferRide;
 
 public class ViewRideCreatedDialog extends Dialog implements
-        View.OnClickListener  {
+        View.OnClickListener {
 
     private static final String TAG = "ViewRideCreatedDialog";
     public Context c;
@@ -27,11 +41,15 @@ public class ViewRideCreatedDialog extends Dialog implements
     // variables
     private TextView mUsername, mRidesCompleted, mCost, mDepartureTime, mExtraTime, mFromStreet, mFromPostcode, mFromCity, mToStreet, mToPostcode, mToCity, mCancelDialogBtn, durationTextView, mPickupLocation;
     private RatingBar mRatingBar;
-    private Button mEditRideBtn;
+    private Button mEditRideBtn,mStartTripBtn;
     private FloatingActionButton mDeleteRideBtn, mPaticipantsRideBtn, mViewProfileBtn;
     private String userID, rides, seats, from, to, date, cost, username, dateOnly, extraTime, rideID, duration, ridesCompleted, pickupLocation;
     private Float rating;
+    private OfferRide offerRide;
 
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mRef;
 
 
     @Override
@@ -40,6 +58,10 @@ public class ViewRideCreatedDialog extends Dialog implements
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_ride_details);
 
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mRef = mFirebaseDatabase.getReference();
+
         setupWidgets();
 
         mPaticipantsRideBtn.setOnClickListener(this);
@@ -47,6 +69,7 @@ public class ViewRideCreatedDialog extends Dialog implements
         mEditRideBtn.setOnClickListener(this);
         mDeleteRideBtn.setOnClickListener(this);
         mViewProfileBtn.setOnClickListener(this);
+        mStartTripBtn.setOnClickListener(this);
     }
 
     public ViewRideCreatedDialog(Context a, String rideID, String username, String rides, String seats, String from, String to, String date, String cost, Float rating, String dateOnly, String extraTime,
@@ -74,7 +97,7 @@ public class ViewRideCreatedDialog extends Dialog implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.dialogConfirm:
+            case R.id.btn_edit_ride:
                 dismiss();
                 Intent intent1 = new Intent(c, EditRideActivity.class);
                 intent1.putExtra("COST", cost);
@@ -87,6 +110,11 @@ public class ViewRideCreatedDialog extends Dialog implements
                 intent1.putExtra("LENGTH", duration);
                 intent1.putExtra("PICKUPLOCATION", pickupLocation);
                 c.startActivity(intent1);
+                break;
+            case R.id.btn_start_trip:
+                Intent intent = new Intent(c, MapsActivity.class);
+                intent.putExtra("RideId",rideID);
+                c.startActivity(intent);
                 break;
             case R.id.dialogCancel:
                 dismiss();
@@ -106,28 +134,28 @@ public class ViewRideCreatedDialog extends Dialog implements
         }
     }
 
-    private void showDialog(){
+    private void showDialog() {
         //Confirmation to delete the ride dialog
         DeleteConfirmationDialog dialog = new DeleteConfirmationDialog(c, rideID);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
     }
-    private void showDialogParticpants(){
+
+    private void showDialogParticpants() {
         //Confirmation to delete the ride dialog
         ParticipantsDialog dialog = new ParticipantsDialog(c, userID, rideID);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
     }
 
-    private void showIntentProfile(){
+    private void showIntentProfile() {
         //Confirmation to delete the ride dialog
         Intent intent = new Intent(c, ProfileActivity.class);
         c.startActivity(intent);
     }
 
 
-
-    private void setupWidgets(){
+    private void setupWidgets() {
         //Setup widgets
         mUsername = (TextView) findViewById(R.id.usernameTxt);
         mRidesCompleted = (TextView) findViewById(R.id.completedRidesTxt);
@@ -142,7 +170,8 @@ public class ViewRideCreatedDialog extends Dialog implements
         mRatingBar = (RatingBar) findViewById(R.id.ratingBar);
 
 
-        mEditRideBtn = (Button) findViewById(R.id.dialogConfirm);
+        mEditRideBtn = (Button) findViewById(R.id.btn_edit_ride);
+        mStartTripBtn = (Button) findViewById(R.id.btn_start_trip);
         mDeleteRideBtn = (FloatingActionButton) findViewById(R.id.deleteRideBtn);
         mPaticipantsRideBtn = (FloatingActionButton) findViewById(R.id.paticipantsRideBtn);
         mViewProfileBtn = (FloatingActionButton) findViewById(R.id.viewProfileBtn);
@@ -159,5 +188,6 @@ public class ViewRideCreatedDialog extends Dialog implements
         mRidesCompleted.setText(ridesCompleted + " Rides");
         mPickupLocation.setText("Pickup: " + pickupLocation);
     }
+
 
 }
