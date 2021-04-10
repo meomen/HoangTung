@@ -12,6 +12,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+
 import androidx.annotation.NonNull;
 
 import com.andremion.counterfab.CounterFab;
@@ -24,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -71,6 +73,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -98,15 +101,18 @@ import firebase.gopool.Map.PlaceInfo;
 import firebase.gopool.MapDirectionHelper.FetchURL;
 import firebase.gopool.MapDirectionHelper.TaskLoadedCallback;
 import firebase.gopool.R;
+import firebase.gopool.Running.MapsActivity;
 import firebase.gopool.Service.RequestCarService;
 import firebase.gopool.Utils.BottomNavigationViewHelper;
+import firebase.gopool.Utils.MapUtils;
 import firebase.gopool.Utils.UniversalImageLoader;
+import firebase.gopool.dialogs.StopTripDialog;
 import firebase.gopool.dialogs.WelcomeDialog;
 import firebase.gopool.models.Request;
 import firebase.gopool.models.Token;
 import firebase.gopool.models.data;
 
-public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, TaskLoadedCallback {
+public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, TaskLoadedCallback {
     private static final String TAG = "HomeActivity";
     private static final int ACTIVITY_NUMBER = 0;
 
@@ -122,8 +128,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(
             new LatLng(-40, -168), new LatLng(71, 136));
     private Boolean mLocationPermissionsGranted = false;
-    private Place To,From;
-    private PlaceInfo placeInfoFrom,placeInfoTo;
+    private Place To, From;
+    private PlaceInfo placeInfoFrom, placeInfoTo;
 
 
     //Google map variables
@@ -134,7 +140,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
     private PlaceInfo mPlace;
-    private Marker mMarker;
+    private Marker mMarker, mCarMarker;
     private double currentLatitude, currentLongtitude;
     private Polyline currentPolyline;
     private MarkerOptions place1, place2;
@@ -151,8 +157,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private RadioGroup mRideSelectionRadioGroup;
     private BottomNavigationView bottomNavigationView;
     private ImageView mLocationBtn;
-    private Button mStopSearchBtn;
+    private Button mStopSearchBtn, mStartTrip, mStopTrip;
     private CounterFab mCounterCar;
+    private FloatingActionButton mCurrentLocation;
 
     //Firebase
     private FirebaseAuth mAuth;
@@ -198,7 +205,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationTextView = (AutoCompleteTextView) findViewById(R.id.locationTextview);
 
         locationTextView.setOnFocusChangeListener((view, motionEvent) -> {
-            typeofaction="from";
+            typeofaction = "from";
         });
         destinationTextview.setOnFocusChangeListener((view, motionEvent) -> {
             typeofaction = "to";
@@ -207,11 +214,16 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mSearchBtn = (Button) findViewById(R.id.searchBtn);
         mStopSearchBtn = (Button) findViewById(R.id.btn_stopsearch);
+        mStartTrip = (Button) findViewById(R.id.btn_start_trip);
+        mStopTrip = (Button) findViewById(R.id.btn_stop_trip);
         mSwitchTextBtn = (Button) findViewById(R.id.switchTextBtn);
         mDirectionsBtn = (Button) findViewById(R.id.directionsBtn);
         mRideSelectionRadioGroup = (RadioGroup) findViewById(R.id.toggle);
         mLocationBtn = (ImageView) findViewById(R.id.locationImage);
         mCounterCar = (CounterFab) findViewById(R.id.fab_counter_car);
+        mCurrentLocation = (FloatingActionButton) findViewById(R.id.myLocationButton);
+        userLocationFAB();
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         mLocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -238,16 +250,20 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mSearchBtn.setOnClickListener(v -> {
             int whichIndex = mRideSelectionRadioGroup.getCheckedRadioButtonId();
             if (whichIndex == R.id.offerButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
-                Intent offerRideActivity = new Intent(mContext, OfferRideFragment.class);
-                offerRideActivity.putExtra("LOCATION", destinationTextview.getText().toString());
-                offerRideActivity.putExtra("DESTINATION", locationTextView.getText().toString());
-                offerRideActivity.putExtra("currentLatitue", currentLatitude);
-                offerRideActivity.putExtra("currentLongtitude", currentLongtitude);
-                Bundle b = new Bundle();
-                b.putParcelable("LatLng", currentLocation);
-                b.putParcelable("To",From.getLatLng());
-                offerRideActivity.putExtras(b);
-                startActivity(offerRideActivity);
+//                Intent offerRideActivity = new Intent(mContext, OfferRideFragment.class);
+//                offerRideActivity.putExtra("LOCATION", destinationTextview.getText().toString());
+//                offerRideActivity.putExtra("DESTINATION", locationTextView.getText().toString());
+//                offerRideActivity.putExtra("currentLatitue", currentLatitude);
+//                offerRideActivity.putExtra("currentLongtitude", currentLongtitude);
+//                Bundle b = new Bundle();
+//                b.putParcelable("LatLng", currentLocation);
+//                b.putParcelable("To",From.getLatLng());
+//                offerRideActivity.putExtras(b);
+//                startActivity(offerRideActivity);
+                mStartTrip.setVisibility(View.VISIBLE);
+                mCurrentLocation.setVisibility(View.VISIBLE);
+
+
             } else if (whichIndex == R.id.findButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
 //                    Intent findRideActivity = new Intent(mContext, SearchRideActivity.class);
 //                    findRideActivity.putExtra("LOCATION", locationTextView.getText().toString());
@@ -255,29 +271,75 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 //                    findRideActivity.putExtra("currentLatitue", currentLatitude);
 //                    findRideActivity.putExtra("currentLongtitude", currentLongtitude);
 //                    startActivity(findRideActivity);
+                offerButton.setEnabled(false);
+                offerButton.setAlpha(.5f);
+                offerButton.setClickable(false);
+
                 if (circle != null) circle.remove();
                 circle = mMap.addCircle(new CircleOptions()
                         .center(new LatLng(currentLatitude, currentLongtitude))
                         .radius(200)
                         .strokeWidth(0f)
                         .fillColor(0x550000FF));
-                moveCameraNoMarker(new LatLng(currentLatitude, currentLongtitude),17f,"Range Search");
+                moveCameraNoMarker(new LatLng(currentLatitude, currentLongtitude), 17f, "Range Search");
                 mStopSearchBtn.setVisibility(View.VISIBLE);
                 mCounterCar.setVisibility(View.VISIBLE);
                 mCounterCar.setCount(1);
 
-                RequestCarService requestCarService= new RequestCarService();
-                requestCarService.searchCar(this,new LatLng(21.037696, 105.773876),mMap);
+                RequestCarService requestCarService = new RequestCarService();
+                requestCarService.searchCar(this, new LatLng(21.037696, 105.773876), mMap);
 
             } else {
                 Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
             }
         });
 
+        mStartTrip.setOnClickListener(view -> {
+
+            mMap.setMyLocationEnabled(false);
+            mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+                currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            });
+            mCarMarker = MapUtils.addCarMarkerAndGet(this, currentLocation, mMap);
+            mCarMarker.setAnchor(0.5f, 0.5f);
+            moveCameraNoMarker(currentLocation, 17f, "");
+
+            mStartTrip.setVisibility(View.GONE);
+            mStopTrip.setVisibility(View.VISIBLE);
+
+            findButton.setEnabled(false);
+            findButton.setAlpha(.5f);
+            findButton.setClickable(false);
+        });
+
         mStopSearchBtn.setOnClickListener(view -> {
             mStopSearchBtn.setVisibility(View.GONE);
             mCounterCar.setVisibility(View.GONE);
             mMap.clear();
+            locationTextView.setText("");
+            destinationTextview.setText("");
+            moveCameraNoMarker(currentLocation, DEFAULT_ZOOM, "");
+
+            if (carOwner) {
+                offerButton.setEnabled(true);
+                offerButton.setAlpha(1f);
+                offerButton.setClickable(true);
+            }
+        });
+        mStopTrip.setOnClickListener(view -> {
+//            mStopTrip.setVisibility(View.VISIBLE);
+//            mStartTrip.setVisibility(View.VISIBLE);
+//            mMap.clear();
+//            locationTextView.setText("");
+//            destinationTextview.setText("");
+//
+//            findButton.setEnabled(true);
+//            findButton.setAlpha(1f);
+//            findButton.setClickable(true);
+
+            StopTripDialog dialog = new StopTripDialog(HomeActivity.this);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.show();
         });
 
         mCounterCar.setOnClickListener(new View.OnClickListener() {
@@ -292,6 +354,13 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 intent.putExtra("DATE", simpleDateFormat.format(currentTime.getTime()));
                 startActivity(intent);
             }
+        });
+
+        mRideSelectionRadioGroup.setOnCheckedChangeListener((radioGroup, i) -> {
+            mStartTrip.setVisibility(View.GONE);
+            mStopTrip.setVisibility(View.GONE);
+            mCurrentLocation.setVisibility(View.GONE);
+            mStopSearchBtn.setVisibility(View.GONE);
         });
 
 
@@ -468,7 +537,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if (task.isSuccessful() && task.getResult() != null) {
                             Log.d(TAG, "onComplete: getting found location!");
                             Location currentLocation = (Location) task.getResult();
-                            placeInfoTo=new PlaceInfo();
+                            placeInfoTo = new PlaceInfo();
                             placeInfoTo.setName("My Location");
                             moveCameraNoMarker(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
                                     DEFAULT_ZOOM,
@@ -501,18 +570,18 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if (task.isSuccessful() && task.getResult() != null) {
                             Log.d(TAG, "onComplete: getting found location!");
                             Location result = (Location) task.getResult();
-                          currentLocation=new LatLng(result.getLatitude(),result.getLongitude());
+                            currentLocation = new LatLng(result.getLatitude(), result.getLongitude());
                             mMap.clear();
-                            To=null;
+                            To = null;
 
                             moveCamera(new LatLng(result.getLatitude(), result.getLongitude()),
                                     DEFAULT_ZOOM,
                                     "My location");
-                            drawMapMarker(From,false,null);
+                            drawMapMarker(From, false, null);
                             currentLatitude = result.getLatitude();
                             currentLongtitude = result.getLongitude();
 
-                            LatLng latLng = new LatLng(currentLatitude,currentLongtitude);
+                            LatLng latLng = new LatLng(currentLatitude, currentLongtitude);
                             place1 = new MarkerOptions()
                                     .position(latLng)
                                     .title("My location");
@@ -559,29 +628,29 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     /**
      * create marker on the given latlng
-     * @param latLng lat lng of the given place
+     *
+     * @param latLng    lat lng of the given place
      * @param placeInfo
      */
-    private void createMarker(LatLng latLng , PlaceInfo placeInfo){
-        String snippet ="Your Location";
-        if(placeInfo!=null){
-             snippet = "Address: " + placeInfo.getAddress() + "\n" +
-                "Phone Number: " + placeInfo.getPhoneNumber() + "\n" +
-                "Website: " + placeInfo.getWebsiteUri() + "\n" +
-                "Price Rating: " + placeInfo.getRating() + "\n";
-
-        MarkerOptions marker = new MarkerOptions()
-                .position(latLng)
-                .title(placeInfo.getName())
-                .snippet(snippet);
-
-        mMarker = mMap.addMarker(marker);
-        }else{
+    private void createMarker(LatLng latLng, PlaceInfo placeInfo) {
+        String snippet = "Your Location";
+        if (placeInfo != null) {
+            snippet = "Address: " + placeInfo.getAddress() + "\n" +
+                    "Phone Number: " + placeInfo.getPhoneNumber() + "\n" +
+                    "Website: " + placeInfo.getWebsiteUri() + "\n" +
+                    "Price Rating: " + placeInfo.getRating() + "\n";
 
             MarkerOptions marker = new MarkerOptions()
                     .position(latLng)
-                    .title(snippet)
-                    ;
+                    .title(placeInfo.getName())
+                    .snippet(snippet);
+
+            mMarker = mMap.addMarker(marker);
+        } else {
+
+            MarkerOptions marker = new MarkerOptions()
+                    .position(latLng)
+                    .title(snippet);
 
             mMarker = mMap.addMarker(marker);
         }
@@ -637,7 +706,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         hideKeyboard(HomeActivity.this);
     }
 
-    private void geoDecoder(Location latLng){
+    private void geoDecoder(Location latLng) {
         Geocoder geocoder;
         List<Address> addresses = null;
         geocoder = new Geocoder(this, Locale.getDefault());
@@ -718,7 +787,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
 //        if (requestCode == PLACE_PICKER_REQUEST) {
 //            if (resultCode == RESULT_OK) {
 //                Place place = PlacePicker.getPlace(this, data);
@@ -770,24 +839,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             final String placeId = item.getPlaceId();
 
             Places.getGeoDataClient(HomeActivity.this)
-                    .getPlaceById( placeId).addOnCompleteListener(place->{
-                getPlaceDetails(place,typeofaction);
+                    .getPlaceById(placeId).addOnCompleteListener(place -> {
+                getPlaceDetails(place, typeofaction);
 
             }).addOnFailureListener(e -> {
-                Log.e(HomeActivity.TAG,"Place can not be found",e);
+                Log.e(HomeActivity.TAG, "Place can not be found", e);
             });
 //            placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
         }
     };
 
 
-
-
     private void getPlaceDetails(Task<PlaceBufferResponse> places, String typeofaction) {
         mMap.clear();
 
         final Place place = places.getResult().get(0);
-
 
 
         try {
@@ -815,15 +881,14 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 currentLocation = mPlace.getLatLng();
             }
 
-            if(typeofaction.equals("from"))
-            {
-                From=place;
-                placeInfoFrom=mPlace;
-                drawMapMarker(From,true,mPlace);
-            } else{
-                To=place;
-                placeInfoTo=mPlace;
-                drawMapMarker(To,true,mPlace);
+            if (typeofaction.equals("from")) {
+                From = place;
+                placeInfoFrom = mPlace;
+                drawMapMarker(From, true, mPlace);
+            } else {
+                To = place;
+                placeInfoTo = mPlace;
+                drawMapMarker(To, true, mPlace);
             }
 
         } catch (NullPointerException e) {
@@ -837,22 +902,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    private void drawMapMarker( Place From,Boolean status ,PlaceInfo placeInfoFrom) {
+    private void drawMapMarker(Place From, Boolean status, PlaceInfo placeInfoFrom) {
 
-        if(From!=null){
+        if (From != null) {
             createMarker(new LatLng(this.From.getViewport().getCenter().latitude,
-                    this.From.getViewport().getCenter().longitude),this.placeInfoFrom);
+                    this.From.getViewport().getCenter().longitude), this.placeInfoFrom);
         }
 
-        if(To!=null){
+        if (To != null) {
             createMarker(new LatLng(To.getViewport().getCenter().latitude,
-                    To.getViewport().getCenter().longitude),placeInfoTo);
-        }else
-            if(currentLocation!=null ){
-                moveCamera(currentLocation,
-                        DEFAULT_ZOOM,
-                        "My location");
-            }
+                    To.getViewport().getCenter().longitude), placeInfoTo);
+        } else if (currentLocation != null) {
+            moveCamera(currentLocation,
+                    DEFAULT_ZOOM,
+                    "My location");
+        }
 
     }
 
@@ -1101,5 +1165,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onConnectionSuspended(int i) {
 
+    }
+
+    private void userLocationFAB() {
+        mCurrentLocation = (FloatingActionButton) findViewById(R.id.myLocationButton);
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+            currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        });
+        mCurrentLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moveCameraNoMarker(currentLocation,
+                        17f,
+                        "My location");
+            }
+        });
     }
 }
