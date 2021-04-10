@@ -16,6 +16,8 @@ import android.location.Location;
 import androidx.annotation.NonNull;
 
 import com.andremion.counterfab.CounterFab;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.libraries.places.compat.PlaceBufferResponse;
@@ -104,7 +106,9 @@ import firebase.gopool.R;
 import firebase.gopool.Running.MapsActivity;
 import firebase.gopool.Service.RequestCarService;
 import firebase.gopool.Utils.BottomNavigationViewHelper;
+import firebase.gopool.Utils.LatLngInterpolator;
 import firebase.gopool.Utils.MapUtils;
+import firebase.gopool.Utils.MarkerAnimation;
 import firebase.gopool.Utils.UniversalImageLoader;
 import firebase.gopool.dialogs.StopTripDialog;
 import firebase.gopool.dialogs.WelcomeDialog;
@@ -144,7 +148,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double currentLatitude, currentLongtitude;
     private Polyline currentPolyline;
     private MarkerOptions place1, place2;
-    private LatLng currentLocation;
+    private LatLng currentLocation,preLocation;
     private Circle circle;
 
     private String directionsRequestUrl;
@@ -166,8 +170,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FirebaseDatabase mFirebaseDatabse;
     private DatabaseReference mRef;
 
-    private Boolean carOwner;
+    private Boolean carOwner, firstTimeFlag = true;
     private String typeofaction;
+    private final LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            super.onLocationResult(locationResult);
+            if (locationResult.getLastLocation() == null)
+                return;
+            preLocation = currentLocation;
+            currentLocation = new LatLng(locationResult.getLastLocation().getLatitude(),
+                    locationResult.getLastLocation().getLongitude());
+            showMarker(currentLocation);
+        }
+    };
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -300,8 +317,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
                 currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
             });
-            mCarMarker = MapUtils.addCarMarkerAndGet(this, currentLocation, mMap);
-            mCarMarker.setAnchor(0.5f, 0.5f);
+//            mCarMarker = MapUtils.addCarMarkerAndGet(this,currentLocation,mMap);
+//            mCarMarker.setAnchor(.5f,.5f);
+            MapUtils.startCurrentLocationUpdates(this,mFusedLocationProviderClient,mLocationCallback);
             moveCameraNoMarker(currentLocation, 17f, "");
 
             mStartTrip.setVisibility(View.GONE);
@@ -1181,5 +1199,30 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         "My location");
             }
         });
+    }
+
+    private void showMarker (LatLng currentLocation) {
+        if (mCarMarker == null){
+            mCarMarker = MapUtils.addCarMarkerAndGet(this, currentLocation, mMap);
+            mCarMarker.setAnchor(0.5f, 0.5f);}
+        else {
+            if( !preLocation.equals(currentLocation)) {
+                mCarMarker.setRotation(MapUtils.getBearing(preLocation,currentLocation));
+            }
+            MarkerAnimation.animateMarkerToGB(mCarMarker, currentLocation, new LatLngInterpolator.Spherical());
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mFusedLocationProviderClient != null)
+            mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
     }
 }
