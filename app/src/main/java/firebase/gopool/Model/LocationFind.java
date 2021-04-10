@@ -2,23 +2,19 @@ package firebase.gopool.Model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class LocationData {
-
+public class LocationFind {
     @SerializedName("user_id")
     public String mUserId;
-    @SerializedName("role")
-    public String mRole;
     @SerializedName("latitude")
     public double mLatitude;
     @SerializedName("longitude")
     public double mLongitude;
 
-    public LocationData() {
+    public LocationFind() {
     }
 
-    public LocationData(String mUserId, String mRole, double mLatitude, double mLongitude) {
+    public LocationFind(String mUserId, double mLatitude, double mLongitude) {
         this.mUserId = mUserId;
-        this.mRole = mRole;
         this.mLatitude = mLatitude;
         this.mLongitude = mLongitude;
     }
@@ -29,14 +25,6 @@ public class LocationData {
 
     public void setmUserId(String mUserId) {
         this.mUserId = mUserId;
-    }
-
-    public String getmRole() {
-        return mRole;
-    }
-
-    public void setmRole(String mRole) {
-        this.mRole = mRole;
     }
 
     public double getmLatitude() {
