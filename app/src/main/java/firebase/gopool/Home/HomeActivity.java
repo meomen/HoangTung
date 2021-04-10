@@ -48,7 +48,6 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -60,8 +59,6 @@ import com.google.android.libraries.places.compat.Place;
 import com.google.android.libraries.places.compat.PlaceBuffer;
 import com.google.android.libraries.places.compat.PlaceDetectionClient;
 import com.google.android.libraries.places.compat.Places;
-import com.google.android.libraries.places.compat.ui.PlacePicker;
-import com.google.android.libraries.places.compat.Place; // NEW,
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -90,11 +87,13 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import firebase.gopool.Login.LoginActivity;
 import firebase.gopool.Map.CustomInfoWindowAdapter;
@@ -102,9 +101,12 @@ import firebase.gopool.Map.PlaceAutocompleteAdapter;
 import firebase.gopool.Map.PlaceInfo;
 import firebase.gopool.MapDirectionHelper.FetchURL;
 import firebase.gopool.MapDirectionHelper.TaskLoadedCallback;
+import firebase.gopool.Model.LocationData;
+import firebase.gopool.Model.LocationFind;
+import firebase.gopool.Model.UpdateLocationRespone;
 import firebase.gopool.R;
-import firebase.gopool.Running.MapsActivity;
-import firebase.gopool.Service.RequestCarService;
+import firebase.gopool.Remote.BackendClient;
+import firebase.gopool.Remote.BackendService;
 import firebase.gopool.Utils.BottomNavigationViewHelper;
 import firebase.gopool.Utils.LatLngInterpolator;
 import firebase.gopool.Utils.MapUtils;
@@ -112,9 +114,10 @@ import firebase.gopool.Utils.MarkerAnimation;
 import firebase.gopool.Utils.UniversalImageLoader;
 import firebase.gopool.dialogs.StopTripDialog;
 import firebase.gopool.dialogs.WelcomeDialog;
-import firebase.gopool.models.Request;
 import firebase.gopool.models.Token;
-import firebase.gopool.models.data;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, TaskLoadedCallback {
     private static final String TAG = "HomeActivity";
@@ -148,9 +151,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double currentLatitude, currentLongtitude;
     private Polyline currentPolyline;
     private MarkerOptions place1, place2;
-    private LatLng currentLocation,preLocation;
+    private LatLng currentLocation, preLocation;
     private Circle circle;
-
+    private ArrayList<Marker> mListMarkerCars;
     private String directionsRequestUrl;
     private String userID;
 
@@ -172,6 +175,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Boolean carOwner, firstTimeFlag = true;
     private String typeofaction;
+
+    private ScheduledExecutorService mExecutor;
+    private BackendService mBackendService;
     private final LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -205,7 +211,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             offerButton = (RadioButton) findViewById(R.id.offerButton);
 
             getUserInformation(userID);
-            ////////////////////////////////////////////////////////////////////////
 
             //Creates token with that new user ID
             updateFirebaseToken();
@@ -239,8 +244,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mLocationBtn = (ImageView) findViewById(R.id.locationImage);
         mCounterCar = (CounterFab) findViewById(R.id.fab_counter_car);
         mCurrentLocation = (FloatingActionButton) findViewById(R.id.myLocationButton);
+        mBackendService = BackendClient.getBackendService();
         userLocationFAB();
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
 
         mLocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -267,27 +273,11 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mSearchBtn.setOnClickListener(v -> {
             int whichIndex = mRideSelectionRadioGroup.getCheckedRadioButtonId();
             if (whichIndex == R.id.offerButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
-//                Intent offerRideActivity = new Intent(mContext, OfferRideFragment.class);
-//                offerRideActivity.putExtra("LOCATION", destinationTextview.getText().toString());
-//                offerRideActivity.putExtra("DESTINATION", locationTextView.getText().toString());
-//                offerRideActivity.putExtra("currentLatitue", currentLatitude);
-//                offerRideActivity.putExtra("currentLongtitude", currentLongtitude);
-//                Bundle b = new Bundle();
-//                b.putParcelable("LatLng", currentLocation);
-//                b.putParcelable("To",From.getLatLng());
-//                offerRideActivity.putExtras(b);
-//                startActivity(offerRideActivity);
                 mStartTrip.setVisibility(View.VISIBLE);
                 mCurrentLocation.setVisibility(View.VISIBLE);
 
 
             } else if (whichIndex == R.id.findButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
-//                    Intent findRideActivity = new Intent(mContext, SearchRideActivity.class);
-//                    findRideActivity.putExtra("LOCATION", locationTextView.getText().toString());
-//                    findRideActivity.putExtra("DESTINATION", destinationTextview.getText().toString());
-//                    findRideActivity.putExtra("currentLatitue", currentLatitude);
-//                    findRideActivity.putExtra("currentLongtitude", currentLongtitude);
-//                    startActivity(findRideActivity);
                 offerButton.setEnabled(false);
                 offerButton.setAlpha(.5f);
                 offerButton.setClickable(false);
@@ -299,12 +289,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .strokeWidth(0f)
                         .fillColor(0x550000FF));
                 moveCameraNoMarker(new LatLng(currentLatitude, currentLongtitude), 17f, "Range Search");
+                updateCurrentLocation("Customer");
                 mStopSearchBtn.setVisibility(View.VISIBLE);
                 mCounterCar.setVisibility(View.VISIBLE);
                 mCounterCar.setCount(1);
-
-                RequestCarService requestCarService = new RequestCarService();
-                requestCarService.searchCar(this, new LatLng(21.037696, 105.773876), mMap);
 
             } else {
                 Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
@@ -317,9 +305,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
                 currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
             });
-//            mCarMarker = MapUtils.addCarMarkerAndGet(this,currentLocation,mMap);
-//            mCarMarker.setAnchor(.5f,.5f);
-            MapUtils.startCurrentLocationUpdates(this,mFusedLocationProviderClient,mLocationCallback);
+            MapUtils.startCurrentLocationUpdates(this, mFusedLocationProviderClient, mLocationCallback);
             moveCameraNoMarker(currentLocation, 17f, "");
 
             mStartTrip.setVisibility(View.GONE);
@@ -328,6 +314,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             findButton.setEnabled(false);
             findButton.setAlpha(.5f);
             findButton.setClickable(false);
+
+            updateCurrentLocation("Driver");
         });
 
         mStopSearchBtn.setOnClickListener(view -> {
@@ -343,21 +331,15 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 offerButton.setAlpha(1f);
                 offerButton.setClickable(true);
             }
+            stopExecutor();
+
         });
         mStopTrip.setOnClickListener(view -> {
-//            mStopTrip.setVisibility(View.VISIBLE);
-//            mStartTrip.setVisibility(View.VISIBLE);
-//            mMap.clear();
-//            locationTextView.setText("");
-//            destinationTextview.setText("");
-//
-//            findButton.setEnabled(true);
-//            findButton.setAlpha(1f);
-//            findButton.setClickable(true);
-
-            StopTripDialog dialog = new StopTripDialog(HomeActivity.this);
+            stopExecutor();
+            StopTripDialog dialog = new StopTripDialog(HomeActivity.this, mFusedLocationProviderClient, mLocationCallback);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
+
         });
 
         mCounterCar.setOnClickListener(new View.OnClickListener() {
@@ -739,7 +721,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         destinationTextview.setText(address);
         destinationTextview.dismissDropDown();
     }
-//    List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG,Place.Field.ADDRESS_COMPONENTS,Place.Field.ADDRESS,Place.Field.ADDRESS_COMPONENTS,Place.Field.PLUS_CODE,Place.Field.TYPES);
 
     private void init() {
         Log.d(TAG, "init: initializing");
@@ -751,13 +732,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-//        mGoogleApiClient = ne
-//        w GoogleApiClient
-//                .Builder(this)
-//                .addApi(Places.GEO_DATA_API)
-//                .addApi(Places.PLACE_DETECTION_API)
-//                .enableAutoManage(this, this)
-//                .build();
 
         destinationTextview.setOnItemClickListener(mAuotcompleteClickListener);
 
@@ -806,16 +780,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == PLACE_PICKER_REQUEST) {
-//            if (resultCode == RESULT_OK) {
-//                Place place = PlacePicker.getPlace(this, data);
-//
-//                PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
-//                        .getPlaceById(mGoogleApiClient, place.getId());
-//
-//                placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
-//            }
-//        }
     }
 
     private void goeLocate() {
@@ -863,7 +827,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             }).addOnFailureListener(e -> {
                 Log.e(HomeActivity.TAG, "Place can not be found", e);
             });
-//            placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
         }
     };
 
@@ -937,45 +900,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }
-
-
-//    public void getPlaceDetails(Place place){
-//
-//
-//        try {
-//
-//            mPlace = new PlaceInfo();
-//            mPlace.setName(place.getName().toString());
-//            Log.d(TAG, "onResult: name: " + place.getName());
-//            mPlace.setAddress(place.getAddress().toString());
-//            Log.d(TAG, "onResult: address: " + place.getAddress());
-//            // mPlace.setAttributions(place.getAttributions().toString());
-//            //Log.d(TAG, "onResult: attributions: " + place.getAttributions());
-//            mPlace.setId(place.getId());
-//            Log.d(TAG, "onResult: id: " + place.getId());
-//            mPlace.setLatLng(place.getLatLng());
-//            Log.d(TAG, "onResult: latLng: " + place.getLatLng());
-//            mPlace.setRating(place.getRating());
-//            Log.d(TAG, "onResult: rating: " + place.getRating());
-//            mPlace.setPhoneNumber(place.getPhoneNumber().toString());
-//            Log.d(TAG, "onResult: phoneNumber: " + place.getPhoneNumber());
-//            mPlace.setWebsiteUri(place.getWebsiteUri());
-//            Log.d(TAG, "onResult: websiteUri: " + place.getWebsiteUri());
-//            Log.d(TAG, "onResult: place: " + mPlace.toString());
-//
-//            if (destinationTextview.isFocused()) {
-//                currentLocation = mPlace.getLatLng();
-//            }
-//
-//        } catch (NullPointerException e) {
-//            Log.e(TAG, "onResult: NullPointerException: " + e.getMessage());
-//        }
-//
-//        moveCamera(new LatLng(place.getViewport().getCenter().latitude,
-//                place.getViewport().getCenter().longitude), DEFAULT_ZOOM, mPlace);
-//
-//
-//    }
 
     private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback = new ResultCallback<PlaceBuffer>() {
         @Override
@@ -1151,33 +1075,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-//        if (!LocationPermission.checkPermission(context)) {
-//            return;
-//        }
-//        location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-//        if (location == null) {
-//            return;
-//        }
-//
-//        DatabaseHelper database = DatabaseHelper.getInstance(context);
-//        MetaData metaData = database.getMetaData();
-//        if (metaData == null || metaData.getLastUpdated() == null || DateHelper.isLaterHours(metaData.getLastUpdated(), 24)) {
-//            jsonMetaData = new JSONHelper(context, true, UrlInfo.getMetaDataUrl(location.getLatitude(), location.getLongitude()), "GET", null);
-//            jsonMetaData.setOnPostExecuteListener(new JSONHelper.OnPostExecuteListener() {
-//                @Override
-//                public void onPostExecute(int responseCode, String responseValue) {
-//                    MetaData metaData = ParserHelper.parseMetaData(responseValue);
-//
-//                    DatabaseHelper database = DatabaseHelper.getInstance(context);
-//                    database.insertMetaData(metaData);
-//
-//                    vehicles = metaData.getVehicles();
-//                    zones = metaData.getZones();
-//                    reloadData();
-//                }
-//            });
-//            jsonMetaData.execute("");
-//        }
     }
 
     @Override
@@ -1201,13 +1098,13 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    private void showMarker (LatLng currentLocation) {
-        if (mCarMarker == null){
+    private void showMarker(LatLng currentLocation) {
+        if (mCarMarker == null) {
             mCarMarker = MapUtils.addCarMarkerAndGet(this, currentLocation, mMap);
-            mCarMarker.setAnchor(0.5f, 0.5f);}
-        else {
-            if( !preLocation.equals(currentLocation)) {
-                mCarMarker.setRotation(MapUtils.getBearing(preLocation,currentLocation));
+            mCarMarker.setAnchor(0.5f, 0.5f);
+        } else {
+            if (!preLocation.equals(currentLocation)) {
+                mCarMarker.setRotation(MapUtils.getBearing(preLocation, currentLocation));
             }
             MarkerAnimation.animateMarkerToGB(mCarMarker, currentLocation, new LatLngInterpolator.Spherical());
         }
@@ -1224,5 +1121,44 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onStop();
         if (mFusedLocationProviderClient != null)
             mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
+    }
+
+    private void updateCurrentLocation(String role) {
+        Runnable helloRunnable = new Runnable() {
+            public void run() {
+
+                LocationData body = new LocationData(userID, role, currentLocation.latitude, currentLocation.longitude);
+                mBackendService.updateLocation(body)
+                        .enqueue(new Callback<UpdateLocationRespone>() {
+                            @Override
+                            public void onResponse(Call<UpdateLocationRespone> call, Response<UpdateLocationRespone> response) {
+                                if(response.isSuccessful()) {
+                                    UpdateLocationRespone body = response.body();
+                                    List<LocationFind> locationFinds = body.getmLocationFind();
+                                    if(locationFinds != null && !locationFinds.isEmpty()) {
+                                        if(role.equals("Customer")) {
+                                            mListMarkerCars = MapUtils.drawCar(HomeActivity.this,locationFinds,mMap);
+                                        }
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<UpdateLocationRespone> call, Throwable t) {
+                                Log.e("Error upda location",t.getLocalizedMessage());
+                            }
+                        });
+            }
+        };
+
+        mExecutor = Executors.newScheduledThreadPool(1);
+        mExecutor.scheduleAtFixedRate(helloRunnable, 0, 3, TimeUnit.SECONDS);
+
+    }
+
+    private void stopExecutor() {
+        if (mExecutor != null) {
+            mExecutor.shutdown();
+        }
     }
 }

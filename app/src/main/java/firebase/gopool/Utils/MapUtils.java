@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.Build;
 import android.os.Looper;
 
@@ -23,6 +24,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import firebase.gopool.Model.LocationFind;
 import firebase.gopool.R;
 
 public class MapUtils {
@@ -35,7 +40,7 @@ public class MapUtils {
     }
     public static Bitmap getCarBitmap(Context context) {
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_car_bitmap);
-        return Bitmap.createScaledBitmap(bitmap, 50, 100, false);
+        return Bitmap.createScaledBitmap(bitmap, 56, 112, false);
     }
 
     public static void startCurrentLocationUpdates(AppCompatActivity activity, FusedLocationProviderClient fusedLocationProviderClient, LocationCallback mLocationCallback) {
@@ -83,6 +88,19 @@ public class MapUtils {
         return -1;
 
     }
+
+    public static void drawCustomer (List<LocationFind> locationFindList, GoogleMap mMap) {
+
+    }
+    public static ArrayList<Marker> drawCar (Context context, List<LocationFind> locationFindList, GoogleMap mMap) {
+        ArrayList<Marker> markers = new ArrayList<>();
+        for (LocationFind locationFind : locationFindList) {
+            Marker marker = MapUtils.addCarMarkerAndGet(context,new LatLng(locationFind.mLatitude,locationFind.mLongitude),mMap);
+            markers.add(marker);
+        }
+        return markers;
+    }
+
 
 
 }

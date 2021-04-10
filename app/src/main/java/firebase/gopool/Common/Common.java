@@ -2,6 +2,8 @@ package firebase.gopool.Common;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import firebase.gopool.Remote.BackendClient;
+import firebase.gopool.Remote.BackendService;
 import firebase.gopool.Remote.FCMClient;
 import firebase.gopool.Remote.IFCMService;
 
@@ -15,6 +17,10 @@ public class Common {
     public static IFCMService getFCMService(){
         return FCMClient.getClient(fcmURL).create(IFCMService.class);
     }
+    public static BackendService getBackService(){
+        return BackendClient.getClient().create(BackendService.class);
+    }
+
 
     public static String getClassName() {
         return className;

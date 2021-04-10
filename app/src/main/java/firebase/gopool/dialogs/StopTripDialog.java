@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,6 +35,8 @@ public class StopTripDialog extends Dialog implements
     public Dialog d;
     private TextView cancelDialog;
     private Button confirmDialog;
+    public FusedLocationProviderClient mFusedLocationProviderClient;
+    public LocationCallback mLocationCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +57,20 @@ public class StopTripDialog extends Dialog implements
         // TODO Auto-generated constructor stub
         this.c = a;
     }
+    public StopTripDialog(Context a, FusedLocationProviderClient mFusedLocationProviderClient, LocationCallback mLocationCallback){
+        super(a);
+        this.c = a;
+        this.mFusedLocationProviderClient = mFusedLocationProviderClient;
+        this.mLocationCallback = mLocationCallback;
+    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.dialogConfirm:
+                if (mFusedLocationProviderClient != null) {
+                    mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
+                }
                 dismiss();
                 ((Activity) c).finish();
                 Intent intent = new Intent(c, HomeActivity.class);

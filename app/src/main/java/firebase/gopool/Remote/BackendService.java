@@ -6,6 +6,8 @@ import firebase.gopool.Model.GetTripRespone;
 import firebase.gopool.Model.LocationData;
 import firebase.gopool.Model.LocationDriverRespone;
 import firebase.gopool.Model.UpdateLocationRespone;
+import firebase.gopool.Model.UpdateSatusRequest;
+import firebase.gopool.Model.UpdateStatusRespone;
 import firebase.gopool.models.FCMResponse;
 import firebase.gopool.models.Sender;
 import retrofit2.Call;
@@ -33,4 +35,7 @@ public interface BackendService {
 
     @POST("trip/create")
     Call<CreateTripRespone> createTrip (@Body CreateTripRequest createTripRequest);
+
+    @POST("trip/update/status")
+    Call<UpdateStatusRespone> uopdateStatus (@Body UpdateSatusRequest updateSatusRequest);
 }
