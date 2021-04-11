@@ -47,9 +47,6 @@ public class StopTripDialog extends Dialog implements
         confirmDialog = (Button) findViewById(R.id.dialogConfirm);
         cancelDialog.setOnClickListener(this);
         confirmDialog.setOnClickListener(this);
-
-
-
     }
 
     public StopTripDialog(Context a) {

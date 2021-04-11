@@ -147,13 +147,12 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
     private PlaceInfo mPlace;
-    private Marker mMarker, mCarMarker;
+    private Marker mMarker, mCarMarker,mPartnerMarker;
     private double currentLatitude, currentLongtitude;
     private Polyline currentPolyline;
     private MarkerOptions place1, place2;
     private LatLng currentLocation, preLocation;
     private Circle circle;
-    private ArrayList<Marker> mListMarkerCars;
     private String directionsRequestUrl;
     private String userID;
 
@@ -1132,15 +1131,13 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .enqueue(new Callback<UpdateLocationRespone>() {
                             @Override
                             public void onResponse(Call<UpdateLocationRespone> call, Response<UpdateLocationRespone> response) {
-                                if(response.isSuccessful()) {
                                     UpdateLocationRespone body = response.body();
                                     List<LocationFind> locationFinds = body.getmLocationFind();
-                                    if(locationFinds != null && !locationFinds.isEmpty()) {
+                                    if(locationFinds != null && !locationFinds.isEmpty() && locationFinds.get(0) != null) {
                                         if(role.equals("Customer")) {
-                                            mListMarkerCars = MapUtils.drawCar(HomeActivity.this,locationFinds,mMap);
+                                            mPartnerMarker = MapUtils.drawCar(HomeActivity.this,locationFinds.get(0),mMap,mPartnerMarker);
                                         }
                                     }
-                                }
                             }
 
                             @Override
@@ -1152,7 +1149,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
 
         mExecutor = Executors.newScheduledThreadPool(1);
-        mExecutor.scheduleAtFixedRate(helloRunnable, 0, 3, TimeUnit.SECONDS);
+        mExecutor.scheduleAtFixedRate(helloRunnable, 0, 5, TimeUnit.SECONDS);
 
     }
 

@@ -33,11 +33,13 @@ import firebase.gopool.R;
 public class MapUtils {
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    public static LocationFind preFindList = null;
 
-    public static Marker addCarMarkerAndGet(Context context, LatLng latLng, GoogleMap map){
+    public static Marker addCarMarkerAndGet(Context context, LatLng latLng, GoogleMap map) {
         BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(getCarBitmap(context));
         return map.addMarker(new MarkerOptions().position(latLng).flat(true).icon(bitmapDescriptor));
     }
+
     public static Bitmap getCarBitmap(Context context) {
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_car_bitmap);
         return Bitmap.createScaledBitmap(bitmap, 56, 112, false);
@@ -73,34 +75,80 @@ public class MapUtils {
            Tương ứng với mỗi trường hợp sẽ là 4 cách tính
          */
 
-        if(begin.latitude < end.latitude && begin.longitude < end.longitude) {
-            return (float)(Math.toDegrees(Math.atan(lng/lat)));
-        }
-        else if(begin.latitude >= end.latitude && begin.longitude < end.longitude) {
-            return (float)((90 - Math.toDegrees(Math.atan(lng/lat)))+90);
-        }
-        else if(begin.latitude >= end.latitude && begin.longitude >= end.longitude) {
-            return (float)(Math.toDegrees(Math.atan(lng/lat))+180);
-        }
-        else if(begin.latitude < end.latitude && begin.longitude >= end.longitude) {
-            return (float)((90 - Math.toDegrees(Math.atan(lng/lat)))+270);
+        if (begin.latitude < end.latitude && begin.longitude < end.longitude) {
+            return (float) (Math.toDegrees(Math.atan(lng / lat)));
+        } else if (begin.latitude >= end.latitude && begin.longitude < end.longitude) {
+            return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 90);
+        } else if (begin.latitude >= end.latitude && begin.longitude >= end.longitude) {
+            return (float) (Math.toDegrees(Math.atan(lng / lat)) + 180);
+        } else if (begin.latitude < end.latitude && begin.longitude >= end.longitude) {
+            return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 270);
         }
         return -1;
 
     }
 
-    public static void drawCustomer (List<LocationFind> locationFindList, GoogleMap mMap) {
+    public static void drawCustomer(List<LocationFind> locationFindList, GoogleMap mMap) {
 
     }
-    public static ArrayList<Marker> drawCar (Context context, List<LocationFind> locationFindList, GoogleMap mMap) {
-        ArrayList<Marker> markers = new ArrayList<>();
-        for (LocationFind locationFind : locationFindList) {
-            Marker marker = MapUtils.addCarMarkerAndGet(context,new LatLng(locationFind.mLatitude,locationFind.mLongitude),mMap);
-            markers.add(marker);
+
+//    public static void drawCar(Context context, List<LocationFind> locationFindList, GoogleMap mMap, ArrayList<Marker> mListMarkerCars) {
+//        ArrayList<Marker> markers = new ArrayList<>();
+//        if ((preFindList == null || preFindList.isEmpty()) && locationFindList != null) {
+//            for (LocationFind locationFind : locationFindList) {
+//                Marker marker = MapUtils.addCarMarkerAndGet(context, new LatLng(locationFind.mLatitude, locationFind.mLongitude), mMap);
+//                markers.add(marker);
+//            }
+//            preFindList = locationFindList;
+//            mListMarkerCars = markers;
+//        } else if ((locationFindList == null || locationFindList.isEmpty()) && markers != null && !markers.isEmpty()) {
+//            for (Marker marker : markers) {
+//                marker.remove();
+//            }
+//        } else if (mListMarkerCars != null && !mListMarkerCars.isEmpty()) {
+//            if (preFindList.equals(locationFindList)) {
+//                return;
+//            } else {
+//                for (int i = 0; i < preFindList.size(); i++) {
+//                    String id1 = preFindList.get(i).getmUserId();
+//                    double lat1 = preFindList.get(i).getmLatitude();
+//                    double lng1 = preFindList.get(i).getmLongitude();
+//                    for (int j = 0; j < locationFindList.size(); j++) {
+//                        String id2 = locationFindList.get(j).getmUserId();
+//                        double lat2 = locationFindList.get(j).getmLatitude();
+//                        double lng2 = locationFindList.get(j).getmLongitude();
+//                        if (id1.equals(id2) && (lat1 != lat2 || lng1 != lng2)) {
+//                            Marker marker = mListMarkerCars.get(i);
+//                            marker.setRotation(MapUtils.getBearing(new LatLng(lat1,lng1),
+//                                    new LatLng(lat2,lng2)));
+//                            MarkerAnimation.animateMarkerToGB(marker, new LatLng(lng1,lng2), new LatLngInterpolator.Spherical());
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+
+    public static Marker drawCar(Context context, LocationFind locationFind, GoogleMap mMap, Marker mPartnerMarker) {
+        if (mPartnerMarker == null && locationFind != null) {
+            Marker marker = MapUtils.addCarMarkerAndGet(context, new LatLng(locationFind.mLatitude, locationFind.mLongitude), mMap);
+            preFindList = locationFind;
+            return marker;
+        }else if (locationFind == null && mPartnerMarker != null ) {
+            mPartnerMarker.remove();
+            return null;
         }
-        return markers;
+        else if (mPartnerMarker != null) {
+            LatLng currentLocation = new LatLng(locationFind.mLatitude,locationFind.mLongitude);
+            LatLng preLocation = new LatLng(preFindList.mLatitude,preFindList.mLongitude);
+            if(!preLocation.equals(currentLocation)) {
+                mPartnerMarker.setRotation(MapUtils.getBearing(preLocation, currentLocation));
+            }
+            MarkerAnimation.animateMarkerToGB(mPartnerMarker, currentLocation, new LatLngInterpolator.Spherical());
+            return mPartnerMarker;
+        }
+        return mPartnerMarker;
     }
-
-
 
 }
