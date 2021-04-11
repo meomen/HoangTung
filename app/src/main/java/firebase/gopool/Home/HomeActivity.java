@@ -95,15 +95,24 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import firebase.gopool.Common.Common;
 import firebase.gopool.Login.LoginActivity;
 import firebase.gopool.Map.CustomInfoWindowAdapter;
 import firebase.gopool.Map.PlaceAutocompleteAdapter;
 import firebase.gopool.Map.PlaceInfo;
 import firebase.gopool.MapDirectionHelper.FetchURL;
 import firebase.gopool.MapDirectionHelper.TaskLoadedCallback;
+import firebase.gopool.Model.CheckRouteRequest;
+import firebase.gopool.Model.CheckRouteRespone;
+import firebase.gopool.Model.CreateTripRequest;
+import firebase.gopool.Model.CreateTripRespone;
+import firebase.gopool.Model.GetTripRespone;
 import firebase.gopool.Model.LocationData;
 import firebase.gopool.Model.LocationFind;
+import firebase.gopool.Model.TripData;
 import firebase.gopool.Model.UpdateLocationRespone;
+import firebase.gopool.Model.UpdateSatusRequest;
+import firebase.gopool.Model.UpdateStatusRespone;
 import firebase.gopool.R;
 import firebase.gopool.Remote.BackendClient;
 import firebase.gopool.Remote.BackendService;
@@ -147,7 +156,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
     private PlaceInfo mPlace;
-    private Marker mMarker, mCarMarker,mPartnerMarker;
+    private Marker mMarker, mCarMarker, mPartnerMarker;
     private double currentLatitude, currentLongtitude;
     private Polyline currentPolyline;
     private MarkerOptions place1, place2;
@@ -172,8 +181,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FirebaseDatabase mFirebaseDatabse;
     private DatabaseReference mRef;
 
-    private Boolean carOwner, firstTimeFlag = true;
+    private Boolean carOwner, firstTimeFlag = true,isAvailable =false;
     private String typeofaction;
+    private CreateTripRequest mTripCustomer, mTripDiver;
+    private TripData mTripData;
 
     private ScheduledExecutorService mExecutor;
     private BackendService mBackendService;
@@ -264,6 +275,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 locationTextView.dismissDropDown();
                 destinationTextview.dismissDropDown();
+
             } else {
                 Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
             }
@@ -289,6 +301,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .fillColor(0x550000FF));
                 moveCameraNoMarker(new LatLng(currentLatitude, currentLongtitude), 17f, "Range Search");
                 updateCurrentLocation("Customer");
+                createTrip("Customer");
                 mStopSearchBtn.setVisibility(View.VISIBLE);
                 mCounterCar.setVisibility(View.VISIBLE);
                 mCounterCar.setCount(1);
@@ -315,9 +328,11 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             findButton.setClickable(false);
 
             updateCurrentLocation("Driver");
+            createTrip("Driver");
         });
 
         mStopSearchBtn.setOnClickListener(view -> {
+            mTripCustomer = null;
             mStopSearchBtn.setVisibility(View.GONE);
             mCounterCar.setVisibility(View.GONE);
             mMap.clear();
@@ -331,10 +346,13 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 offerButton.setClickable(true);
             }
             stopExecutor();
+            stopTrip(userID);
 
         });
         mStopTrip.setOnClickListener(view -> {
+            mTripDiver = null;
             stopExecutor();
+            stopTrip(userID);
             StopTripDialog dialog = new StopTripDialog(HomeActivity.this, mFusedLocationProviderClient, mLocationCallback);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
@@ -1120,6 +1138,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onStop();
         if (mFusedLocationProviderClient != null)
             mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
+        stopTrip(userID);
     }
 
     private void updateCurrentLocation(String role) {
@@ -1131,18 +1150,24 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .enqueue(new Callback<UpdateLocationRespone>() {
                             @Override
                             public void onResponse(Call<UpdateLocationRespone> call, Response<UpdateLocationRespone> response) {
-                                    UpdateLocationRespone body = response.body();
-                                    List<LocationFind> locationFinds = body.getmLocationFind();
-                                    if(locationFinds != null && !locationFinds.isEmpty() && locationFinds.get(0) != null) {
-                                        if(role.equals("Customer")) {
-                                            mPartnerMarker = MapUtils.drawCar(HomeActivity.this,locationFinds.get(0),mMap,mPartnerMarker);
+                                UpdateLocationRespone body = response.body();
+                                List<LocationFind> locationFinds = body.getmLocationFind();
+                                if (locationFinds != null && !locationFinds.isEmpty() && locationFinds.get(0) != null) {
+                                    if (role.equals("Customer")) {
+                                        checkRoute(userID);
+                                        if (isAvailable) {
+                                            mPartnerMarker = MapUtils.drawCar(HomeActivity.this, locationFinds.get(0), mMap, mPartnerMarker);
+                                            isAvailable = false;
                                         }
                                     }
+                                } else if (mPartnerMarker != null) {
+                                    mPartnerMarker.remove();
+                                }
                             }
 
                             @Override
                             public void onFailure(Call<UpdateLocationRespone> call, Throwable t) {
-                                Log.e("Error upda location",t.getLocalizedMessage());
+                                Log.e("Error upda location", t.getLocalizedMessage());
                             }
                         });
             }
@@ -1158,4 +1183,91 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             mExecutor.shutdown();
         }
     }
+
+    private void createTrip(String role) {
+        CreateTripRequest createTripRequest = new CreateTripRequest();
+        createTripRequest.setmRole(role);
+        createTripRequest.setmUserId(userID);
+        createTripRequest.setmStartAddress(locationTextView.getText().toString());
+        createTripRequest.setmLatitudeStart(place1.getPosition().latitude);
+        createTripRequest.setmLongitudeStart(place1.getPosition().longitude);
+        createTripRequest.setmEndAddress(destinationTextview.getText().toString());
+        createTripRequest.setmLatitudeEnd(place2.getPosition().latitude);
+        createTripRequest.setmLongitudeEnd(place2.getPosition().longitude);
+        createTripRequest.setmPoly(Common.poly);
+        createTripRequest.setmStatus(0);
+        Date currentTime = Calendar.getInstance().getTime();
+        createTripRequest.setmCreateAt(currentTime.toString());
+        mBackendService.createTrip(createTripRequest).enqueue(new Callback<CreateTripRespone>() {
+            @Override
+            public void onResponse(Call<CreateTripRespone> call, Response<CreateTripRespone> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<CreateTripRespone> call, Throwable t) {
+                Log.e("Create Trip Error", t.getLocalizedMessage());
+            }
+        });
+
+        Common.poly = null;
+    }
+
+    private void checkRoute(String partnerID) {
+        mBackendService.getTrip(partnerID)
+                .enqueue(new Callback<List<TripData>>() {
+                    @Override
+                    public void onResponse(Call<List<TripData>> call, Response<List<TripData>> response) {
+                        if(!response.body().isEmpty()) {
+                            mTripData = response.body().get(0);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<TripData>> call, Throwable t) {
+                        Log.e("check Trip Error", t.getLocalizedMessage());
+                    }
+                });
+        if( mTripData == null) return;
+        CheckRouteRequest checkRouteRequest = new CheckRouteRequest();
+        checkRouteRequest.setmCode(mTripData.getmPoly());
+        checkRouteRequest.setmLatitude(place2.getPosition().latitude);
+        checkRouteRequest.setmLongitude(place2.getPosition().longitude);
+
+        final boolean[] result = new boolean[1];
+        result[0] = false;
+        mBackendService.checkRoute(checkRouteRequest)
+                .enqueue(new Callback<CheckRouteRespone>() {
+                    @Override
+                    public void onResponse(Call<CheckRouteRespone> call, Response<CheckRouteRespone> response) {
+                        isAvailable = response.body().ismNear();
+                        mTripData = null;
+                    }
+
+                    @Override
+                    public void onFailure(Call<CheckRouteRespone> call, Throwable t) {
+                        Log.e("Check Route Error", t.getLocalizedMessage());
+                        mTripData = null;
+                    }
+                });
+    }
+
+
+    private void stopTrip (String userID) {
+        UpdateSatusRequest updateSatusRequest = new UpdateSatusRequest();
+        updateSatusRequest.setUserId(userID);
+        mBackendService.updateStatus(updateSatusRequest)
+                .enqueue(new Callback<UpdateStatusRespone>() {
+                    @Override
+                    public void onResponse(Call<UpdateStatusRespone> call, Response<UpdateStatusRespone> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<UpdateStatusRespone> call, Throwable t) {
+                        Log.e("stopTrip Error", t.getLocalizedMessage());
+                    }
+                });
+    }
+
 }

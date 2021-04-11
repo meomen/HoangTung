@@ -13,6 +13,7 @@ public class Common {
     public static String className;
     public static LatLng pickupLatLng;
     public static String userID = null;
+    public static String poly = null;
 
     public static IFCMService getFCMService(){
         return FCMClient.getClient(fcmURL).create(IFCMService.class);

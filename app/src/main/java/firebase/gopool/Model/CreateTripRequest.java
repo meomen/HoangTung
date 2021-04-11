@@ -21,13 +21,15 @@ public class CreateTripRequest {
     double mLongitudeEnd;
     @SerializedName("status")
     int mStatus;
+    @SerializedName("poly")
+    String mPoly;
     @SerializedName("createdAt")
     String mCreateAt;
 
     public CreateTripRequest() {
     }
 
-    public CreateTripRequest(String mRole, String mUserId, String mStartAddress, double mLatitudeStart, double mLongitudeStart, String mEndAddress, double mLatitudeEnd, double mLongitudeEnd, int mStatus, String mCreateAt) {
+    public CreateTripRequest(String mRole, String mUserId, String mStartAddress, double mLatitudeStart, double mLongitudeStart, String mEndAddress, double mLatitudeEnd, double mLongitudeEnd, int mStatus, String mPoly, String mCreateAt) {
         this.mRole = mRole;
         this.mUserId = mUserId;
         this.mStartAddress = mStartAddress;
@@ -37,6 +39,7 @@ public class CreateTripRequest {
         this.mLatitudeEnd = mLatitudeEnd;
         this.mLongitudeEnd = mLongitudeEnd;
         this.mStatus = mStatus;
+        this.mPoly = mPoly;
         this.mCreateAt = mCreateAt;
     }
 
@@ -118,5 +121,13 @@ public class CreateTripRequest {
 
     public void setmCreateAt(String mCreateAt) {
         this.mCreateAt = mCreateAt;
+    }
+
+    public String getmPoly() {
+        return mPoly;
+    }
+
+    public void setmPoly(String mPoly) {
+        this.mPoly = mPoly;
     }
 }

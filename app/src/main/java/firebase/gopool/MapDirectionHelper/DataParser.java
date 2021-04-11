@@ -3,6 +3,8 @@ package firebase.gopool.MapDirectionHelper;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,6 +13,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import firebase.gopool.Common.Common;
 
 /**
  * Created by Vishal on 10/20/2018.
@@ -50,6 +54,11 @@ public class DataParser {
                     routes.add(path);
                 }
             }
+            JSONObject json_overview = ((JSONObject) jRoutes.get(0)).getJSONObject("overview_polyline");
+            String points = json_overview.getString("points");
+//            JSONObject point = ((JSONObject) json_overview.getJSONObject("points"));
+            Log.i("Minh",points);
+            Common.poly = points;
 
         } catch (JSONException e) {
             e.printStackTrace();
