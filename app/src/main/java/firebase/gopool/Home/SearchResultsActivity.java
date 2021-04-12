@@ -30,6 +30,7 @@ import java.util.Date;
 
 
 import firebase.gopool.Adapter.SearchAdapter;
+import firebase.gopool.Model.TripData;
 import firebase.gopool.R;
 import firebase.gopool.models.Ride;
 
@@ -43,7 +44,7 @@ public class SearchResultsActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mRecycleAdapter;
     private SearchAdapter myAdapter;
-    private ArrayList<Ride> rides;
+    private ArrayList<TripData> tripList;
 
     //Firebase variables
     private FirebaseUser currentUser;
@@ -61,6 +62,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: started.");
         setContentView(R.layout.fragment_search_results);
+        tripList = new ArrayList<TripData>();
         getActivityData();
 
         //Setup firebase object
@@ -81,45 +83,47 @@ public class SearchResultsActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mRecycleAdapter);
-        rides = new ArrayList<Ride>();
 
 
-        mRef.child("availableRide").orderByChild("destination").equalTo(destination).limitToFirst(20)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()){
-                            for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
-                                Ride r = dataSnapshot1.getValue(Ride.class);
-                                    if (r.getSeatsAvailable() > 0) {
-                                        Date aParsed = null;
-                                        Date bParsed = null;
-                                        try {
-                                            aParsed = parseDate(r.getDateOfJourney());
-                                            bParsed = parseDate(date);
-                                            Log.i(TAG, "onDataChange: " + aParsed + bParsed);
-                                            if (aParsed.after(bParsed) || aParsed.equals(bParsed)) {
-                                                if (!(r.getUser_id().contains(user_id))) {
-                                                    rides.add(r);
-                                                    mNoResultsFoundLayout.setVisibility(View.INVISIBLE);
-                                                }
-                                            }
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-
-                                }
-                            }
-                            myAdapter = new SearchAdapter(SearchResultsActivity.this, rides);
-                            mRecyclerView.setAdapter(myAdapter);
-                        }
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(SearchResultsActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
+//
+//        mRef.child("availableRide").orderByChild("destination").equalTo(destination).limitToFirst(20)
+//                .addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                        if(dataSnapshot.exists()){
+//                            for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+//                                Ride r = dataSnapshot1.getValue(Ride.class);
+//                                    if (r.getSeatsAvailable() > 0) {
+//                                        Date aParsed = null;
+//                                        Date bParsed = null;
+//                                        try {
+//                                            aParsed = parseDate(r.getDateOfJourney());
+//                                            bParsed = parseDate(date);
+//                                            Log.i(TAG, "onDataChange: " + aParsed + bParsed);
+//                                            if (aParsed.after(bParsed) || aParsed.equals(bParsed)) {
+//                                                if (!(r.getUser_id().contains(user_id))) {
+//                                                    rides.add(r);
+//                                                    mNoResultsFoundLayout.setVisibility(View.INVISIBLE);
+//                                                }
+//                                            }
+//                                        } catch (ParseException e) {
+//                                            e.printStackTrace();
+//                                        }
+//
+//                                }
+//                            }
+//                            myAdapter = new SearchAdapter(SearchResultsActivity.this, rides);
+//                            mRecyclerView.setAdapter(myAdapter);
+//                        }
+//                    }
+//                    @Override
+//                    public void onCancelled(@NonNull DatabaseError databaseError) {
+//                        Toast.makeText(SearchResultsActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+        mNoResultsFoundLayout.setVisibility(View.INVISIBLE);
+        myAdapter = new SearchAdapter(SearchResultsActivity.this, tripList);
+        mRecyclerView.setAdapter(myAdapter);
         //Setup back arrow for navigating back to 'ProfileActivity'
         ImageView backArrow = (ImageView) findViewById(R.id.backArrowSearchRide);
         backArrow.setOnClickListener(new View.OnClickListener() {
@@ -142,12 +146,9 @@ public class SearchResultsActivity extends AppCompatActivity {
     }
 
     private void getActivityData() {
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            location = getIntent().getStringExtra("DESTINATION");
-            destination = getIntent().getStringExtra("LOCATION");
-            sameGender = getIntent().getExtras().getBoolean("sameGender");
-            date = getIntent().getStringExtra("DATE");
+        if(getIntent() != null) {
+            TripData tripData = (TripData) getIntent().getSerializableExtra("trips");
+            tripList.add(tripData);
         }
     }
 

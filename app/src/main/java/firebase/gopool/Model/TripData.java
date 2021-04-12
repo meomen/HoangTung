@@ -2,7 +2,10 @@ package firebase.gopool.Model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class TripData {
+import java.io.Serializable;
+
+
+public class TripData implements Serializable {
 
     @SerializedName("id")
     String mId;

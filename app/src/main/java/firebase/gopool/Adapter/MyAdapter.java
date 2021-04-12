@@ -119,8 +119,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             rides = (TextView) itemView.findViewById(R.id.indivcompletedRidesTxt);
             from = (TextView) itemView.findViewById(R.id.fromTxt);
             to = (TextView) itemView.findViewById(R.id.toTxt);
-            date = (TextView) itemView.findViewById(R.id.individualTimeTxt);
-            seats = (TextView) itemView.findViewById(R.id.seatsTxt);
+//            date = (TextView) itemView.findViewById(R.id.individualTimeTxt);
+//            seats = (TextView) itemView.findViewById(R.id.seatsTxt);
             costs = (TextView) itemView.findViewById(R.id.priceTxt);
 
             ratingBar = (RatingBar) itemView.findViewById(R.id.individualRatingBar);

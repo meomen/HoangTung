@@ -2,6 +2,7 @@ package firebase.gopool.Common;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import firebase.gopool.Model.TripData;
 import firebase.gopool.Remote.BackendClient;
 import firebase.gopool.Remote.BackendService;
 import firebase.gopool.Remote.FCMClient;
@@ -14,6 +15,8 @@ public class Common {
     public static LatLng pickupLatLng;
     public static String userID = null;
     public static String poly = null;
+    public static TripData tripCustomer;
+    public static TripData tripDriver;
 
     public static IFCMService getFCMService(){
         return FCMClient.getClient(fcmURL).create(IFCMService.class);

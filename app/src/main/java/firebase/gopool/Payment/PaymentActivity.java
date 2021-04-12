@@ -295,27 +295,27 @@ public class PaymentActivity extends AppCompatActivity {
                             Notification data = new Notification(currentUserID, userID, rideID, extraData, destination);
                             Sender content = new Sender(data, token.getToken());
 
-                            mService.sendMessage(content)
-                                    .enqueue(new Callback<FCMResponse>() {
-                                        @Override
-                                        public void onResponse(Call<FCMResponse> call, retrofit2.Response<FCMResponse> response) {
-                                            Log.i(TAG, "onResponse: " + response.toString());
-                                            if (response.body().success == 1 || response.code() == 200){
-                                                Toast.makeText(mContext, "Booking request sent!", Toast.LENGTH_SHORT).show();
-                                                updateSeatsRemaining();
-                                                mFirebaseMethods.addPoints(userID, 200);
-                                                finish();
-                                            } else {
-                                                Toast.makeText(mContext, "Booking request failed!", Toast.LENGTH_SHORT).show();
-                                                finish();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<FCMResponse> call, Throwable t) {
-                                            Log.e(TAG, "onFailure: "+ t.getMessage());
-                                        }
-                                    });
+//                            mService.sendMessage(content)
+//                                    .enqueue(new Callback<FCMResponse>() {
+//                                        @Override
+//                                        public void onResponse(Call<FCMResponse> call, retrofit2.Response<FCMResponse> response) {
+//                                            Log.i(TAG, "onResponse: " + response.toString());
+//                                            if (response.body().success == 1 || response.code() == 200){
+//                                                Toast.makeText(mContext, "Booking request sent!", Toast.LENGTH_SHORT).show();
+//                                                updateSeatsRemaining();
+//                                                mFirebaseMethods.addPoints(userID, 200);
+//                                                finish();
+//                                            } else {
+//                                                Toast.makeText(mContext, "Booking request failed!", Toast.LENGTH_SHORT).show();
+//                                                finish();
+//                                            }
+//                                        }
+//
+//                                        @Override
+//                                        public void onFailure(Call<FCMResponse> call, Throwable t) {
+//                                            Log.e(TAG, "onFailure: "+ t.getMessage());
+//                                        }
+//                                    });
                         }
                     }
 

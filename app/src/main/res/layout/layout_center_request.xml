@@ -35,7 +35,7 @@
                         android:layout_marginRight="32dp"
                         android:id="@+id/message"
                         android:gravity="center"
-                        android:text="Hi, i'm {Username} and would like to request a seat on your journey!" />
+                        android:text="Hi, i'm Duc Minh and would like to request a seat on your journey!" />
 
 
                     <androidx.cardview.widget.CardView
@@ -83,30 +83,30 @@
                             android:text="To: Leicester, UK" />
                     </androidx.cardview.widget.CardView>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="32dp"
-                        android:layout_marginTop="35dp"
-                        android:textSize="16sp"
-                        android:layout_marginRight="32dp"
-                        android:id="@+id/seats"
-                        android:gravity="center"
-                        android:text="Seats required: 1" />
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:layout_marginBottom="10dp"-->
+<!--                        android:layout_marginLeft="32dp"-->
+<!--                        android:layout_marginTop="35dp"-->
+<!--                        android:textSize="16sp"-->
+<!--                        android:layout_marginRight="32dp"-->
+<!--                        android:id="@+id/seats"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="Seats required: 1" />-->
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="30dp"
-                        android:layout_marginLeft="32dp"
-                        android:textSize="16sp"
-                        android:layout_marginRight="32dp"
-                        android:id="@+id/seats"
-                        android:gravity="center"
-                        android:text="Luggage required: 1kg" />
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:layout_marginBottom="30dp"-->
+<!--                        android:layout_marginLeft="32dp"-->
+<!--                        android:textSize="16sp"-->
+<!--                        android:layout_marginRight="32dp"-->
+<!--                        android:id="@+id/seats"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="Luggage required: 1kg" />-->
 
                     <RelativeLayout
                         android:layout_width="wrap_content"

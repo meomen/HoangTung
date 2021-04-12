@@ -156,14 +156,15 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
     private PlaceInfo mPlace;
-    private Marker mMarker, mCarMarker, mPartnerMarker;
+    private Marker mMarker, mCarMarker, mPartnerMarker, mCustomerMarker;
     private double currentLatitude, currentLongtitude;
     private Polyline currentPolyline;
+    private ArrayList<Polyline> polylines;
     private MarkerOptions place1, place2;
     private LatLng currentLocation, preLocation;
     private Circle circle;
     private String directionsRequestUrl;
-    private String userID;
+    private String userID, partnerID;
 
     //Widgets
     private AutoCompleteTextView destinationTextview, locationTextView;
@@ -181,9 +182,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FirebaseDatabase mFirebaseDatabse;
     private DatabaseReference mRef;
 
-    private Boolean carOwner, firstTimeFlag = true,isAvailable =false;
-    private String typeofaction;
-    private CreateTripRequest mTripCustomer, mTripDiver;
+    private Boolean carOwner, firstTimeFlag = true, isAvailable = false;
+    private String typeofaction, role;
     private TripData mTripData;
 
     private ScheduledExecutorService mExecutor;
@@ -215,6 +215,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (mAuth.getCurrentUser() != null) {
             //Gets userID of current user signed in
             userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            Common.userID = userID;
 
             //Disables offer button when the user is logged in and they have no car
             findButton = (RadioButton) findViewById(R.id.findButton);
@@ -293,6 +294,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 offerButton.setAlpha(.5f);
                 offerButton.setClickable(false);
 
+                role = "Customer";
                 if (circle != null) circle.remove();
                 circle = mMap.addCircle(new CircleOptions()
                         .center(new LatLng(currentLatitude, currentLongtitude))
@@ -304,7 +306,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 createTrip("Customer");
                 mStopSearchBtn.setVisibility(View.VISIBLE);
                 mCounterCar.setVisibility(View.VISIBLE);
-                mCounterCar.setCount(1);
+                mCounterCar.setEnabled(false);
 
             } else {
                 Toast.makeText(mContext, "Please enter location and destination", Toast.LENGTH_SHORT).show();
@@ -313,6 +315,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mStartTrip.setOnClickListener(view -> {
 
+            role = "Driver";
             mMap.setMyLocationEnabled(false);
             mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
                 currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
@@ -332,7 +335,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         mStopSearchBtn.setOnClickListener(view -> {
-            mTripCustomer = null;
             mStopSearchBtn.setVisibility(View.GONE);
             mCounterCar.setVisibility(View.GONE);
             mMap.clear();
@@ -347,10 +349,11 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             stopExecutor();
             stopTrip(userID);
+            role = null;
 
         });
         mStopTrip.setOnClickListener(view -> {
-            mTripDiver = null;
+            role = null;
             stopExecutor();
             stopTrip(userID);
             StopTripDialog dialog = new StopTripDialog(HomeActivity.this, mFusedLocationProviderClient, mLocationCallback);
@@ -363,12 +366,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, SearchResultsActivity.class);
-                intent.putExtra("LOCATION", locationTextView.getText().toString());
-                intent.putExtra("DESTINATION", destinationTextview.getText().toString());
-                intent.putExtra("sameGender", false);
-                Date currentTime = Calendar.getInstance().getTime();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yy", Locale.UK);
-                intent.putExtra("DATE", simpleDateFormat.format(currentTime.getTime()));
+                intent.putExtra("trips", mTripData);
                 startActivity(intent);
             }
         });
@@ -1154,14 +1152,23 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 List<LocationFind> locationFinds = body.getmLocationFind();
                                 if (locationFinds != null && !locationFinds.isEmpty() && locationFinds.get(0) != null) {
                                     if (role.equals("Customer")) {
-                                        checkRoute(userID);
+                                        partnerID = locationFinds.get(0).mUserId;
+                                        checkRoute(partnerID);
                                         if (isAvailable) {
                                             mPartnerMarker = MapUtils.drawCar(HomeActivity.this, locationFinds.get(0), mMap, mPartnerMarker);
                                             isAvailable = false;
+                                            mCounterCar.setEnabled(true);
+                                            mCounterCar.setCount(1);
+                                        } else {
+                                            mTripData = null;
+                                            mCounterCar.setCount(0);
+                                            mCounterCar.setEnabled(false);
                                         }
                                     }
                                 } else if (mPartnerMarker != null) {
                                     mPartnerMarker.remove();
+                                    mCounterCar.setCount(0);
+                                    mCounterCar.setEnabled(false);
                                 }
                             }
 
@@ -1170,6 +1177,26 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 Log.e("Error upda location", t.getLocalizedMessage());
                             }
                         });
+
+                if (Common.tripCustomer != null && Common.tripDriver != null) {
+                    if (role != null && role.equals("Driver")) {
+                        if (currentPolyline != null) currentPolyline.remove();
+                        LatLng startPointCustomer = new LatLng(Common.tripCustomer.getmLatitudeStart(), Common.tripCustomer.getmLongitudeStart());
+                        LatLng endPointCustomer = new LatLng(Common.tripCustomer.getmLatitudeEnd(), Common.tripCustomer.getmLongitudeEnd());
+
+                        mCustomerMarker = MapUtils.addCustomerMarkerAndGet(HomeActivity.this, startPointCustomer, mMap);
+
+                        FetchURL fetchURL = new FetchURL(HomeActivity.this, mMap);
+                        fetchURL.execute(getUrl(place1.getPosition(), startPointCustomer, "driving"), "driving");
+                        polylines.add(fetchURL.getPolyline());
+                        fetchURL.execute(getUrl(startPointCustomer, endPointCustomer, "driving"), "driving");
+                        polylines.add(fetchURL.getPolyline());
+                        fetchURL.execute(getUrl(endPointCustomer, place2.getPosition(), "driving"), "driving");
+                        polylines.add(fetchURL.getPolyline());
+
+                        stopExecutor();
+                    }
+                }
             }
         };
 
@@ -1188,10 +1215,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         CreateTripRequest createTripRequest = new CreateTripRequest();
         createTripRequest.setmRole(role);
         createTripRequest.setmUserId(userID);
-        createTripRequest.setmStartAddress(locationTextView.getText().toString());
+        createTripRequest.setmStartAddress(destinationTextview.getText().toString());
         createTripRequest.setmLatitudeStart(place1.getPosition().latitude);
         createTripRequest.setmLongitudeStart(place1.getPosition().longitude);
-        createTripRequest.setmEndAddress(destinationTextview.getText().toString());
+        createTripRequest.setmEndAddress(locationTextView.getText().toString());
         createTripRequest.setmLatitudeEnd(place2.getPosition().latitude);
         createTripRequest.setmLongitudeEnd(place2.getPosition().longitude);
         createTripRequest.setmPoly(Common.poly);
@@ -1201,7 +1228,12 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mBackendService.createTrip(createTripRequest).enqueue(new Callback<CreateTripRespone>() {
             @Override
             public void onResponse(Call<CreateTripRespone> call, Response<CreateTripRespone> response) {
-
+                CreateTripRespone createTripRespone = response.body();
+                if (role.equals("Customer")) {
+                    Common.tripCustomer = createTripRespone.getmBody();
+                } else {
+                    Common.tripDriver = createTripRespone.getmBody();
+                }
             }
 
             @Override
@@ -1213,12 +1245,12 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         Common.poly = null;
     }
 
-    private void checkRoute(String partnerID) {
+    private void getTrip(String partnerID) {
         mBackendService.getTrip(partnerID)
                 .enqueue(new Callback<List<TripData>>() {
                     @Override
                     public void onResponse(Call<List<TripData>> call, Response<List<TripData>> response) {
-                        if(!response.body().isEmpty()) {
+                        if (!response.body().isEmpty()) {
                             mTripData = response.body().get(0);
                         }
                     }
@@ -1228,7 +1260,11 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Log.e("check Trip Error", t.getLocalizedMessage());
                     }
                 });
-        if( mTripData == null) return;
+    }
+
+    private void checkRoute(String partnerID) {
+        getTrip(partnerID);
+        if (mTripData == null) return;
         CheckRouteRequest checkRouteRequest = new CheckRouteRequest();
         checkRouteRequest.setmCode(mTripData.getmPoly());
         checkRouteRequest.setmLatitude(place2.getPosition().latitude);
@@ -1241,19 +1277,17 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onResponse(Call<CheckRouteRespone> call, Response<CheckRouteRespone> response) {
                         isAvailable = response.body().ismNear();
-                        mTripData = null;
                     }
 
                     @Override
                     public void onFailure(Call<CheckRouteRespone> call, Throwable t) {
                         Log.e("Check Route Error", t.getLocalizedMessage());
-                        mTripData = null;
                     }
                 });
     }
 
 
-    private void stopTrip (String userID) {
+    private void stopTrip(String userID) {
         UpdateSatusRequest updateSatusRequest = new UpdateSatusRequest();
         updateSatusRequest.setUserId(userID);
         mBackendService.updateStatus(updateSatusRequest)

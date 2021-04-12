@@ -36,20 +36,17 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
        if (remoteMessage.getData().isEmpty()){
 
        } else {
-           if(remoteMessage.getData().get("body").contains(userID)){
-               showNotifcation(remoteMessage.getData());
-           }
+//           if(remoteMessage.getData().get("body").contains(userID)){
+//               showNotifcation(remoteMessage.getData());
+//           }
+           showNotifcation(remoteMessage.getData());
        }
     }
 
 
 
     private void showNotifcation(Map<String,String> data) {
-        String title = data.get("title").toString();
-        String body = data.get("body").toString();
-        String username[] = data.get("username").split(",");
-        String rideID = data.get("rideID").toString();
-        String to = data.get("to").toString();
+        String userIdCustomer = data.get("userID").toString();
 
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -72,20 +69,14 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.drawable.notification)
-                .setContentTitle(title)
-                .setContentText(body)
+                .setContentTitle("Have 1 customer")
+                .setContentText(userIdCustomer)
                 .setContentInfo("Info");
 
         notificationManager.notify(new Random().nextInt(), notificationBuilder.build());
 
         Intent intent = new Intent(this, CustomerActivity.class);
-        intent.putExtra("username", username[0]);
-        intent.putExtra("to", to);
-        intent.putExtra("title", title);
-        intent.putExtra("userID", body);
-        intent.putExtra("rideID", rideID);
-        intent.putExtra("from", username[2]);
-        intent.putExtra("profile_photo", username[1]);
+        intent.putExtra("userIdCustomer", userIdCustomer);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
 

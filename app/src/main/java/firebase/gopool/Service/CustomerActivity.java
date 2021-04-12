@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -12,16 +13,25 @@ import android.widget.TextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.List;
+
 import de.hdodenhof.circleimageview.CircleImageView;
+import firebase.gopool.Common.Common;
+import firebase.gopool.Model.TripData;
 import firebase.gopool.R;
+import firebase.gopool.Remote.BackendClient;
+import firebase.gopool.Remote.BackendService;
 import firebase.gopool.Utils.FirebaseMethods;
 import firebase.gopool.Utils.UniversalImageLoader;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CustomerActivity extends AppCompatActivity {
     private static final String TAG = "CustomerActivity";
 
     private TextView txtUsername, txtTo, txtFrom;
-    private String title, body, username, profile_photo, to, from, userID, rideID;
+    private String  to, from, userIdCustomer, rideID;
     private Boolean rideAccepted;
 
     //Widgets
@@ -34,6 +44,8 @@ public class CustomerActivity extends AppCompatActivity {
     private FirebaseMethods mFirebaseMethods;
 
     private Context mContext = CustomerActivity.this;
+    private BackendService mBackendService;
+    private TripData mTripData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +56,18 @@ public class CustomerActivity extends AppCompatActivity {
 
         getActivityData();
         setupDialog();
-
+        getTrip(userIdCustomer);
         mFirebaseMethods = new FirebaseMethods(mContext);
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = mFirebaseDatabase.getReference();
+        mBackendService = BackendClient.getBackendService();
         acceptBtn = (FloatingActionButton) findViewById(R.id.confirmRideBtn);
         declineBtn = (FloatingActionButton) findViewById(R.id.declineRideBtn);
         mRequestProfilePhoto = (CircleImageView)findViewById(R.id.requestProfilePhoto);
         txtTo = (TextView) findViewById(R.id.to);
         txtFrom = (TextView) findViewById(R.id.from);
         txtUsername = (TextView) findViewById(R.id.message);
-        txtUsername.setText("Hi, i'm " + username + " and would like to request a seat on your journey!");
+//        txtUsername.setText("Hi, i'm " + username + " and would like to request a seat on your journey!");
 
 
         acceptBtn.setOnClickListener(new View.OnClickListener() {
@@ -76,19 +89,16 @@ public class CustomerActivity extends AppCompatActivity {
        txtTo.setText("To: " + to);
        txtFrom.setText("From: " + from);
 
-        UniversalImageLoader.setImage(profile_photo, mRequestProfilePhoto, null,"");
+//        UniversalImageLoader.setImage(profile_photo, mRequestProfilePhoto, null,"");
+
+
+
+
     }
 
     private void getActivityData() {
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            userID = getIntent().getStringExtra("title");
-            body = getIntent().getStringExtra("userID");
-            username = getIntent().getStringExtra("username");
-            profile_photo = getIntent().getStringExtra("profile_photo");
-            to = getIntent().getStringExtra("to").replaceAll("\n", ", ");
-            from = getIntent().getStringExtra("from").replaceAll("\n", ", ");
-            rideID = getIntent().getStringExtra("rideID");
+        if (getIntent() != null) {
+            userIdCustomer = getIntent().getStringExtra("userIdCustomer");
         }
     }
 
@@ -106,25 +116,44 @@ public class CustomerActivity extends AppCompatActivity {
     }
 
     private void acceptRide(){
-        myRef.child("requestRide")
-                .child(rideID)
-                .child(userID)
-                .child("accepted")
-                .setValue(true);
+//        myRef.child("requestRide")
+//                .child(rideID)
+//                .child(userID)
+//                .child("accepted")
+//                .setValue(true);
 
         //Will close the intent when the ride is accepted
+        Common.tripCustomer = mTripData;
         finish();
     }
 
     private void declineRide(){
 
-        myRef.child("requestRide")
-                .child(rideID)
-                .child(userID)
-                .removeValue();
+//        myRef.child("requestRide")
+//                .child(rideID)
+//                .child(userID)
+//                .removeValue();
 
         //Will close the intent when the ride is accepted
         finish();
+    }
+
+    private void getTrip(String partnerID) {
+        mBackendService = BackendClient.getBackendService();
+        mBackendService.getTrip(partnerID)
+                .enqueue(new Callback<List<TripData>>() {
+                    @Override
+                    public void onResponse(Call<List<TripData>> call, Response<List<TripData>> response) {
+                        if (!response.body().isEmpty()) {
+                            mTripData = response.body().get(0);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<TripData>> call, Throwable t) {
+                        Log.e("check Trip Error", t.getLocalizedMessage());
+                    }
+                });
     }
 
 
