@@ -1234,6 +1234,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     }
                                 } else if (mPartnerMarker != null) {
                                     mPartnerMarker.remove();
+                                    mPartnerMarker = null;
                                     mCounterCar.setCount(0);
                                     mCounterCar.setEnabled(false);
                                 }
