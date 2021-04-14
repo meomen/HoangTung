@@ -116,7 +116,7 @@
                             app:backgroundTint="@color/theme"
                             android:elevation="16dp"
                             android:layout_marginBottom="10dp"
-                            android:src="@drawable/ic_check"/>
+                            android:src="@drawable/ic_check_png"/>
 
                         <com.google.android.material.floatingactionbutton.FloatingActionButton
                             android:layout_width="wrap_content"

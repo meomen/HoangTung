@@ -40,22 +40,22 @@ public class BottomNavigationViewHelper {
                         } else {
                             break;
                         }
-                    case R.id.menu_rides:
-                        if (view.getSelectedItemId() != R.id.menu_rides) {
-                            Intent intentRides = new Intent(context, RidesActivity.class); //ACTIVITY_NUMBER = 1
-                            context.startActivity(intentRides);
-                            break;
-                        } else {
-                            break;
-                        }
-                    case R.id.menu_booked:
-                        if (view.getSelectedItemId() != R.id.menu_booked) {
-                            Intent intentBooked = new Intent(context, BookedActivity.class); //ACTIVITY_NUMBER = 2
-                            context.startActivity(intentBooked);
-                            break;
-                        } else {
-                            break;
-                        }
+//                    case R.id.menu_rides:
+//                        if (view.getSelectedItemId() != R.id.menu_rides) {
+//                            Intent intentRides = new Intent(context, RidesActivity.class); //ACTIVITY_NUMBER = 1
+//                            context.startActivity(intentRides);
+//                            break;
+//                        } else {
+//                            break;
+//                        }
+//                    case R.id.menu_booked:
+//                        if (view.getSelectedItemId() != R.id.menu_booked) {
+//                            Intent intentBooked = new Intent(context, BookedActivity.class); //ACTIVITY_NUMBER = 2
+//                            context.startActivity(intentBooked);
+//                            break;
+//                        } else {
+//                            break;
+//                        }
                     case R.id.menu_account:
                         if (view.getSelectedItemId() != R.id.menu_account) {
                             Intent intentAccount = new Intent(context, AccountActivity.class); //ACTIVITY_NUMBER = 3

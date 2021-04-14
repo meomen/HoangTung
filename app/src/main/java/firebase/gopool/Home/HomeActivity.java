@@ -156,12 +156,12 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
     private PlaceInfo mPlace;
-    private Marker mMarker, mCarMarker, mPartnerMarker, mCustomerMarker;
+    private Marker mMarker1,mMarker2, mCarMarker, mPartnerMarker, mCustomerMarker;
     private double currentLatitude, currentLongtitude;
     private Polyline currentPolyline;
     private ArrayList<Polyline> polylines;
     private MarkerOptions place1, place2;
-    private LatLng currentLocation, preLocation;
+    private LatLng currentLocation, preLocation, startPointCustomer, endPointCustomer;
     private Circle circle;
     private String directionsRequestUrl;
     private String userID, partnerID;
@@ -173,7 +173,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private RadioGroup mRideSelectionRadioGroup;
     private BottomNavigationView bottomNavigationView;
     private ImageView mLocationBtn;
-    private Button mStopSearchBtn, mStartTrip, mStopTrip;
+    private Button mStopSearchBtn, mStartTrip, mStopTrip, mPickUpBtn, mDropCustomerBtn;
     private CounterFab mCounterCar;
     private FloatingActionButton mCurrentLocation;
 
@@ -251,6 +251,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mStopTrip = (Button) findViewById(R.id.btn_stop_trip);
         mSwitchTextBtn = (Button) findViewById(R.id.switchTextBtn);
         mDirectionsBtn = (Button) findViewById(R.id.directionsBtn);
+        mPickUpBtn = (Button) findViewById(R.id.btn_pickup_customer);
+        mDropCustomerBtn = (Button) findViewById(R.id.btn_drop_customer);
         mRideSelectionRadioGroup = (RadioGroup) findViewById(R.id.toggle);
         mLocationBtn = (ImageView) findViewById(R.id.locationImage);
         mCounterCar = (CounterFab) findViewById(R.id.fab_counter_car);
@@ -287,6 +289,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (whichIndex == R.id.offerButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
                 mStartTrip.setVisibility(View.VISIBLE);
                 mCurrentLocation.setVisibility(View.VISIBLE);
+                mStopTrip.setVisibility(View.GONE);
 
 
             } else if (whichIndex == R.id.findButton && destinationTextview.getText().toString().trim().length() > 0 && locationTextView.getText().toString().trim().length() > 0) {
@@ -354,6 +357,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         mStopTrip.setOnClickListener(view -> {
             role = null;
+            Common.tripDriver = null;
+            Common.tripCustomer = null;
+            Common.flatStop = null;
             stopExecutor();
             stopTrip(userID);
             StopTripDialog dialog = new StopTripDialog(HomeActivity.this, mFusedLocationProviderClient, mLocationCallback);
@@ -378,6 +384,36 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             mStopSearchBtn.setVisibility(View.GONE);
         });
 
+        mPickUpBtn.setOnClickListener(view -> {
+            if(Common.currentPoly != null) Common.currentPoly.remove();
+
+            new FetchURL(HomeActivity.this, mMap).execute(getUrl(startPointCustomer, endPointCustomer, "driving"), "driving");
+            mPickUpBtn.setVisibility(View.GONE);
+            mDropCustomerBtn.setVisibility(View.VISIBLE);
+            mStopTrip.setVisibility(View.GONE);
+            mMarker1.remove();
+
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(endPointCustomer)
+                    .title("destination customer")
+                    .snippet(Common.tripCustomer.getmEndAddress());
+            mMarker2 = mMap.addMarker(markerOptions);
+        });
+
+        mDropCustomerBtn.setOnClickListener(view -> {
+            if(Common.currentPoly != null) Common.currentPoly.remove();
+            new FetchURL(HomeActivity.this, mMap).execute(getUrl(endPointCustomer, place2.getPosition(), "driving"), "driving");
+            mDropCustomerBtn.setVisibility(View.GONE);
+            mStopTrip.setVisibility(View.VISIBLE);
+            mMarker1 = mMarker2;
+            mCustomerMarker.remove();
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(place2.getPosition())
+                    .title("destination driver")
+                    .snippet(Common.tripDriver.getmEndAddress());
+            mMarker2 = mMap.addMarker(markerOptions);
+            mStopTrip.setVisibility(View.VISIBLE);
+        });
 
         initImageLoader();
         setupBottomNavigationView();
@@ -592,7 +628,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                             moveCamera(new LatLng(result.getLatitude(), result.getLongitude()),
                                     DEFAULT_ZOOM,
                                     "My location");
-                            drawMapMarker(From, false, null);
+//                            drawMapMarker(From, false, null);
                             currentLatitude = result.getLatitude();
                             currentLongtitude = result.getLongitude();
 
@@ -634,7 +670,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .snippet("");
 
 
-            mMap.addMarker(markerOptions);
+            mMarker1 = mMap.addMarker(markerOptions);
         }
 
         hideKeyboard(HomeActivity.this);
@@ -660,14 +696,14 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .title(placeInfo.getName())
                     .snippet(snippet);
 
-            mMarker = mMap.addMarker(marker);
+//            mMarker = mMap.addMarker(marker);
         } else {
 
             MarkerOptions marker = new MarkerOptions()
                     .position(latLng)
                     .title(snippet);
 
-            mMarker = mMap.addMarker(marker);
+//            mMarker = mMap.addMarker(marker);
         }
 
     }
@@ -695,7 +731,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .title(placeInfo.getName())
                             .snippet(snippet);
 
-                    mMarker = mMap.addMarker(place1);
+                    mMarker1 = mMap.addMarker(place1);
 
                 } else {
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
@@ -705,7 +741,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .title(placeInfo.getName())
                             .snippet(snippet);
 
-                    mMarker = mMap.addMarker(place2);
+                    mMarker2 = mMap.addMarker(place2);
 
                     directionsRequestUrl = getUrl(place1.getPosition(), place2.getPosition(), "driving");
 
@@ -1128,7 +1164,38 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResume() {
         super.onResume();
+        Common.customerOnMap = false;
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        if(mCarMarker != null) MapUtils.startCurrentLocationUpdates(this, mFusedLocationProviderClient, mLocationCallback);
+        if (Common.tripCustomer != null && Common.tripDriver != null && Common.flatStop == null) {
+            if (role != null && role.equals("Driver")) {
+                drawExtraRoute();
+                mPickUpBtn.setVisibility(View.VISIBLE);
+            }
+        }
+        else if (Common.flatStop != null) {
+            if(Common.flatStop.equals(Common.CUSTOMER_STOP)) {
+                if(Common.currentPoly != null) Common.currentPoly.remove();
+                mPickUpBtn.setVisibility(View.GONE);
+                mDropCustomerBtn.setVisibility(View.GONE);
+                mStopTrip.setVisibility(View.VISIBLE);
+                if(mCustomerMarker != null) mCustomerMarker.remove();
+                if(mMarker1 != null) mMarker1.remove();
+                if(mMarker2 != null) mMarker2.remove();
+
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(currentLocation)
+                        .title("start driver")
+                        .snippet("");
+                mMarker1 = mMap.addMarker(markerOptions);
+                markerOptions = new MarkerOptions()
+                        .position(place2.getPosition())
+                        .title("destination driver")
+                        .snippet("");
+                mMarker2 = mMap.addMarker(markerOptions);
+                new FetchURL(HomeActivity.this, mMap).execute(getUrl(currentLocation, place2.getPosition(), "driving"), "driving");
+            }
+        }
     }
 
     @Override
@@ -1136,7 +1203,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onStop();
         if (mFusedLocationProviderClient != null)
             mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
-        stopTrip(userID);
+
     }
 
     private void updateCurrentLocation(String role) {
@@ -1178,25 +1245,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                         });
 
-                if (Common.tripCustomer != null && Common.tripDriver != null) {
-                    if (role != null && role.equals("Driver")) {
-                        if (currentPolyline != null) currentPolyline.remove();
-                        LatLng startPointCustomer = new LatLng(Common.tripCustomer.getmLatitudeStart(), Common.tripCustomer.getmLongitudeStart());
-                        LatLng endPointCustomer = new LatLng(Common.tripCustomer.getmLatitudeEnd(), Common.tripCustomer.getmLongitudeEnd());
-
-                        mCustomerMarker = MapUtils.addCustomerMarkerAndGet(HomeActivity.this, startPointCustomer, mMap);
-
-                        FetchURL fetchURL = new FetchURL(HomeActivity.this, mMap);
-                        fetchURL.execute(getUrl(place1.getPosition(), startPointCustomer, "driving"), "driving");
-                        polylines.add(fetchURL.getPolyline());
-                        fetchURL.execute(getUrl(startPointCustomer, endPointCustomer, "driving"), "driving");
-                        polylines.add(fetchURL.getPolyline());
-                        fetchURL.execute(getUrl(endPointCustomer, place2.getPosition(), "driving"), "driving");
-                        polylines.add(fetchURL.getPolyline());
-
-                        stopExecutor();
-                    }
-                }
             }
         };
 
@@ -1304,4 +1352,19 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
     }
 
+    public void drawExtraRoute() {
+        if (Common.currentPoly != null) Common.currentPoly.remove();
+        startPointCustomer = new LatLng(Common.tripCustomer.getmLatitudeStart(), Common.tripCustomer.getmLongitudeStart());
+        endPointCustomer = new LatLng(Common.tripCustomer.getmLatitudeEnd(), Common.tripCustomer.getmLongitudeEnd());
+        mCustomerMarker = MapUtils.addCustomerMarkerAndGet(HomeActivity.this, startPointCustomer, mMap,Common.tripCustomer.getmStartAddress());
+        mMarker2.remove();
+        new FetchURL(HomeActivity.this, mMap).execute(getUrl(place1.getPosition(), startPointCustomer, "driving"), "driving");
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopExecutor();
+    }
 }

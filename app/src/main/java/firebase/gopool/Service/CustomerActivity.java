@@ -4,25 +4,38 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import firebase.gopool.Common.Common;
+import firebase.gopool.Home.HomeActivity;
 import firebase.gopool.Model.TripData;
 import firebase.gopool.R;
 import firebase.gopool.Remote.BackendClient;
 import firebase.gopool.Remote.BackendService;
+import firebase.gopool.Remote.FCMClient;
+import firebase.gopool.Remote.IFCMService;
 import firebase.gopool.Utils.FirebaseMethods;
 import firebase.gopool.Utils.UniversalImageLoader;
+import firebase.gopool.models.DataRequest;
+import firebase.gopool.models.FCMResponse;
+import firebase.gopool.models.Send;
+import firebase.gopool.models.Token;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -45,6 +58,7 @@ public class CustomerActivity extends AppCompatActivity {
 
     private Context mContext = CustomerActivity.this;
     private BackendService mBackendService;
+    private IFCMService mService;
     private TripData mTripData;
 
     @Override
@@ -86,8 +100,7 @@ public class CustomerActivity extends AppCompatActivity {
 //     txtAddress = (TextView) findViewById(R.id.txtAddress);
 //     txtTime.setText(title);
 //     txtDistance.setText(body);
-       txtTo.setText("To: " + to);
-       txtFrom.setText("From: " + from);
+
 
 //        UniversalImageLoader.setImage(profile_photo, mRequestProfilePhoto, null,"");
 
@@ -123,6 +136,7 @@ public class CustomerActivity extends AppCompatActivity {
 //                .setValue(true);
 
         //Will close the intent when the ride is accepted
+        SendRespone("yes");
         Common.tripCustomer = mTripData;
         finish();
     }
@@ -135,6 +149,7 @@ public class CustomerActivity extends AppCompatActivity {
 //                .removeValue();
 
         //Will close the intent when the ride is accepted
+        SendRespone("no");
         finish();
     }
 
@@ -146,12 +161,51 @@ public class CustomerActivity extends AppCompatActivity {
                     public void onResponse(Call<List<TripData>> call, Response<List<TripData>> response) {
                         if (!response.body().isEmpty()) {
                             mTripData = response.body().get(0);
+                            txtTo.setText("To: " + mTripData.getmEndAddress());
+                            txtFrom.setText("From: " + mTripData.getmStartAddress());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<List<TripData>> call, Throwable t) {
                         Log.e("check Trip Error", t.getLocalizedMessage());
+                    }
+                });
+    }
+
+    private void SendRespone (String accept) {
+        mService = Common.getFCMService();
+        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
+
+
+        tokens.orderByKey().equalTo(userIdCustomer)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                            Token token = dataSnapshot1.getValue(Token.class);
+
+                            DataRequest data = new DataRequest(Common.userID,"respone",accept);
+                            Send content = new Send(data, token.getToken());
+                            mService.sendRequest(content)
+                                    .enqueue(new Callback<FCMResponse>() {
+                                        @Override
+                                        public void onResponse(Call<FCMResponse> call, retrofit2.Response<FCMResponse> response) {
+                                            Log.i("Send Respone", "onResponse: " + response.toString());
+                                        }
+
+
+                                        @Override
+                                        public void onFailure(Call<FCMResponse> call, Throwable t) {
+                                            Log.e("Send Respone Error", "onFailure: " + t.getMessage());
+                                        }
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
                     }
                 });
     }

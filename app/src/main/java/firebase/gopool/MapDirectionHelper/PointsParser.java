@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import firebase.gopool.Common.ApplicationContext;
+import firebase.gopool.Common.Common;
 import firebase.gopool.R;
 
 /**
@@ -112,7 +113,7 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
 
         // Drawing polyline in the Google Map for the i-th route
         if (lineOptions != null) {
-            polyline = map.addPolyline(lineOptions);
+            Common.currentPoly = map.addPolyline(lineOptions);
             taskCallback.onTaskDone(lineOptions);
 
         } else {

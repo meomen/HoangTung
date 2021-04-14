@@ -24,9 +24,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import firebase.gopool.Booked.BookedActivity;
+import firebase.gopool.Common.Common;
 import firebase.gopool.Home.HomeActivity;
 import firebase.gopool.R;
+import firebase.gopool.Remote.IFCMService;
 import firebase.gopool.Utils.FirebaseMethods;
+import firebase.gopool.models.DataRequest;
+import firebase.gopool.models.FCMResponse;
+import firebase.gopool.models.Send;
+import firebase.gopool.models.Token;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class StopTripDialog extends Dialog implements
         View.OnClickListener{
@@ -37,6 +45,9 @@ public class StopTripDialog extends Dialog implements
     private Button confirmDialog;
     public FusedLocationProviderClient mFusedLocationProviderClient;
     public LocationCallback mLocationCallback;
+    private boolean isCustomerStop = false;
+    private IFCMService mService;
+    private String userDriver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +60,12 @@ public class StopTripDialog extends Dialog implements
         confirmDialog.setOnClickListener(this);
     }
 
-    public StopTripDialog(Context a) {
+    public StopTripDialog(Context a, boolean isCustomerStop,String userDriver) {
         super(a);
         // TODO Auto-generated constructor stub
         this.c = a;
+        this.isCustomerStop = isCustomerStop;
+        this.userDriver = userDriver;
     }
     public StopTripDialog(Context a, FusedLocationProviderClient mFusedLocationProviderClient, LocationCallback mLocationCallback){
         super(a);
@@ -61,6 +74,13 @@ public class StopTripDialog extends Dialog implements
         this.mLocationCallback = mLocationCallback;
     }
 
+    public StopTripDialog(Context a) {
+        super(a);
+        // TODO Auto-generated constructor stub
+        this.c = a;
+    }
+
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -68,11 +88,16 @@ public class StopTripDialog extends Dialog implements
                 if (mFusedLocationProviderClient != null) {
                     mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
                 }
-                dismiss();
-                ((Activity) c).finish();
-                Intent intent = new Intent(c, HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                ((Activity) c).startActivity(intent);
+                if(isCustomerStop) {
+                   CustomerStop();
+                }
+                else {
+                    dismiss();
+                    ((Activity) c).finish();
+                    Intent intent = new Intent(c, HomeActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    ((Activity) c).startActivity(intent);
+                }
                 break;
             case R.id.dialogCancel:
                 dismiss();
@@ -81,6 +106,54 @@ public class StopTripDialog extends Dialog implements
                 break;
         }
         dismiss();
+    }
+
+    private void CustomerStop () {
+        mService = Common.getFCMService();
+        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
+
+
+        tokens.orderByKey().equalTo(userDriver)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                            Token token = dataSnapshot1.getValue(Token.class);
+
+                            DataRequest data = new DataRequest(Common.userID,Common.CUSTOMER_STOP,"");
+                            Send content = new Send(data, token.getToken());
+                            mService.sendRequest(content)
+                                    .enqueue(new Callback<FCMResponse>() {
+                                        @Override
+                                        public void onResponse(Call<FCMResponse> call, retrofit2.Response<FCMResponse> response) {
+                                            Log.i("Send Request", "onResponse: " + response.toString());
+                                            if (response.body().success == 1 || response.code() == 200) {
+                                                Toast.makeText(c, "Stop request sent!", Toast.LENGTH_SHORT).show();
+                                                dismiss();
+
+                                                Intent intent = new Intent(c, HomeActivity.class);
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                c.startActivity(intent);
+                                            } else {
+                                                Toast.makeText(c, "Stop request failed!", Toast.LENGTH_SHORT).show();
+                                                dismiss();
+                                            }
+                                        }
+
+
+                                        @Override
+                                        public void onFailure(Call<FCMResponse> call, Throwable t) {
+                                            Log.e("Send Request Error", "onFailure: " + t.getMessage());
+                                        }
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 
 

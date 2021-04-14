@@ -257,6 +257,33 @@
                     android:layout_alignParentBottom="true"
                     android:textColor="@android:color/white"
                     android:background="@drawable/btn_style_green" />
+                <Button
+                    android:id="@+id/btn_pickup_customer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="pick up customer"
+                    android:clickable="false"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="13dp"
+                    android:layout_alignParentBottom="true"
+                    android:textColor="@android:color/white"
+                    android:background="@drawable/btn_style_green" />
+                <Button
+                    android:id="@+id/btn_drop_customer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="drop customer"
+                    android:clickable="false"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="13dp"
+                    android:layout_alignParentBottom="true"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@color/bt_blue_pressed"
+                    android:background="@drawable/btn_style_green" />
 
                 <Button
                     android:id="@+id/btn_stop_trip"

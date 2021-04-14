@@ -53,7 +53,7 @@ public class MapUtils {
 
     public static Marker addCarMarkerAndGet(Context context, LatLng latLng, GoogleMap map) {
         BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(getCarBitmap(context));
-        return map.addMarker(new MarkerOptions().position(latLng).flat(true).icon(bitmapDescriptor));
+        return map.addMarker(new MarkerOptions().position(latLng).flat(true).icon(bitmapDescriptor).title("Car").snippet(""));
     }
 
     public static Bitmap getCarBitmap(Context context) {
@@ -61,14 +61,14 @@ public class MapUtils {
         return Bitmap.createScaledBitmap(bitmap, 56, 112, false);
     }
 
-    public static Marker addCustomerMarkerAndGet(Context context, LatLng latLng, GoogleMap map) {
-        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(getCarBitmap(context));
-        return map.addMarker(new MarkerOptions().position(latLng).flat(true).icon(bitmapDescriptor));
+    public static Marker addCustomerMarkerAndGet(Context context, LatLng latLng, GoogleMap map, String address) {
+        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(getCustomerBitmap(context));
+        return map.addMarker(new MarkerOptions().position(latLng).flat(true).icon(bitmapDescriptor).title("Pickup point").snippet(address));
     }
 
     public static Bitmap getCustomerBitmap(Context context) {
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_customer);
-        return Bitmap.createScaledBitmap(bitmap, 56, 112, false);
+        return Bitmap.createScaledBitmap(bitmap, 50, 100, false);
     }
 
     public static void startCurrentLocationUpdates(AppCompatActivity activity, FusedLocationProviderClient fusedLocationProviderClient, LocationCallback mLocationCallback) {
@@ -188,7 +188,7 @@ public class MapUtils {
                         for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
                             Token token = dataSnapshot1.getValue(Token.class);
 
-                            DataRequest data = new DataRequest(Common.userID);
+                            DataRequest data = new DataRequest(Common.userID,"request","");
                             Send content = new Send(data, token.getToken());
                             mService.sendRequest(content)
                                     .enqueue(new Callback<FCMResponse>() {
@@ -197,17 +197,17 @@ public class MapUtils {
                                             Log.i("Send Request", "onResponse: " + response.toString());
                                             if (response.body().success == 1 || response.code() == 200) {
                                                 Toast.makeText(activity, "Booking request sent!", Toast.LENGTH_SHORT).show();
-
-                                                Intent intent = new Intent(activity, HomeActivity.class);
-                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                activity.startActivity(intent);
+//
+//                                                Intent intent = new Intent(activity, HomeActivity.class);
+//                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                                activity.startActivity(intent);
                                                 activity.finish();
                                             } else {
                                                 Toast.makeText(activity, "Booking request failed!", Toast.LENGTH_SHORT).show();
 
-                                                Intent intent = new Intent(activity, HomeActivity.class);
-                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                activity.startActivity(intent);
+//                                                Intent intent = new Intent(activity, HomeActivity.class);
+//                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                                activity.startActivity(intent);
                                                 activity.finish();
                                             }
                                         }

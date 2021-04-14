@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 
 import java.io.BufferedReader;
@@ -13,6 +15,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import firebase.gopool.Utils.MapUtils;
 
 public class FetchURL extends AsyncTask<String, Void, String> {
     Context mContext;
@@ -86,6 +90,8 @@ public class FetchURL extends AsyncTask<String, Void, String> {
     public void setPolyline(Polyline polyline) {
         this.polyline = polyline;
     }
+
+
 
 }
 
