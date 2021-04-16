@@ -20,7 +20,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.ProviderQueryResult;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -64,6 +64,56 @@ public class EmailUpdateFragment extends Fragment implements ConfirmPasswordDial
                 .getCredential(mAuth.getCurrentUser().getEmail(), password);
 
         // Prompt the user to re-provide their sign-in credentials
+//        user.reauthenticate(credential)
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        if (task.isSuccessful()) {
+//                            Log.d(TAG, "User re-authenticated.");
+//
+//                            // -- check to see if email is already in databse -- //
+//                            mAuth.fetchProvidersForEmail(mEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<ProviderQueryResult>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<ProviderQueryResult> task) {
+//                                    if (task.isSuccessful()){
+//                                        try {
+//                                            if (task.getResult().getProviders().size() == 1) {
+//                                                Log.d(TAG, "onComplete: email is already in use");
+//                                                Toast.makeText(getActivity(), "Email in use", Toast.LENGTH_SHORT).show();
+//                                            } else {
+//                                                Log.d(TAG, "onComplete: email is available");
+//
+//                                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//
+//                                                //Updating email method
+//                                                user.updateEmail(mEmail.getText().toString())
+//                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                                            @Override
+//                                                            public void onComplete(@NonNull Task<Void> task) {
+//                                                                if (task.isSuccessful()) {
+//                                                                    Log.d(TAG, "User email address updated.");
+//                                                                    Toast.makeText(getActivity(), "User email address updated.", Toast.LENGTH_SHORT).show();
+//
+//                                                                    mFirebaseMethods.updateEmail(mEmail.getText().toString());
+//                                                                }
+//                                                            }
+//                                                        });
+//                                            }
+//                                        } catch (NullPointerException e){
+//                                            Log.e(TAG, "onComplete: NullPointerExceptionL " + e.getMessage());
+//                                        }
+//                                    }
+//                                }
+//                            });
+//
+//                        } else {
+//                            Log.d(TAG, "onComplete: re-auth failed");
+//                        }
+//                    }
+//                });
+//
+//    }
+
         user.reauthenticate(credential)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -72,12 +122,13 @@ public class EmailUpdateFragment extends Fragment implements ConfirmPasswordDial
                             Log.d(TAG, "User re-authenticated.");
 
                             // -- check to see if email is already in databse -- //
-                            mAuth.fetchProvidersForEmail(mEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<ProviderQueryResult>() {
+                            mAuth.fetchSignInMethodsForEmail(mEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
                                 @Override
-                                public void onComplete(@NonNull Task<ProviderQueryResult> task) {
+                                public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
                                     if (task.isSuccessful()){
+                                        boolean isNewUser = task.getResult().getSignInMethods().isEmpty();
                                         try {
-                                            if (task.getResult().getProviders().size() == 1) {
+                                            if (isNewUser) {
                                                 Log.d(TAG, "onComplete: email is already in use");
                                                 Toast.makeText(getActivity(), "Email in use", Toast.LENGTH_SHORT).show();
                                             } else {
@@ -113,7 +164,6 @@ public class EmailUpdateFragment extends Fragment implements ConfirmPasswordDial
                 });
 
     }
-
 
     @Nullable
     @Override

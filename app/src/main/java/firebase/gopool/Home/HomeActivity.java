@@ -95,7 +95,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import firebase.gopool.Chat.ChatDetailActivity;
 import firebase.gopool.Common.Common;
+import firebase.gopool.Common.CommonAgr;
 import firebase.gopool.Login.LoginActivity;
 import firebase.gopool.Map.CustomInfoWindowAdapter;
 import firebase.gopool.Map.PlaceAutocompleteAdapter;
@@ -175,7 +177,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ImageView mLocationBtn;
     private Button mStopSearchBtn, mStartTrip, mStopTrip, mPickUpBtn, mDropCustomerBtn;
     private CounterFab mCounterCar;
-    private FloatingActionButton mCurrentLocation;
+    private FloatingActionButton mCurrentLocation,mChatBtn;
 
     //Firebase
     private FirebaseAuth mAuth;
@@ -230,6 +232,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             //Subscribes to a topic with that user ID so only that user can see messages with that user ID
             FirebaseMessaging.getInstance().subscribeToTopic(userID);
+
         }
 
         typeofaction = "to";
@@ -258,6 +261,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mCounterCar = (CounterFab) findViewById(R.id.fab_counter_car);
         mCurrentLocation = (FloatingActionButton) findViewById(R.id.myLocationButton);
         mBackendService = BackendClient.getBackendService();
+        mChatBtn = (FloatingActionButton) findViewById(R.id.btn_chat);
         userLocationFAB();
 
 
@@ -411,8 +415,18 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .position(place2.getPosition())
                     .title("destination driver")
                     .snippet(Common.tripDriver.getmEndAddress());
+
             mMarker2 = mMap.addMarker(markerOptions);
             mStopTrip.setVisibility(View.VISIBLE);
+            mChatBtn.setVisibility(View.GONE);
+        });
+
+        mChatBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, ChatDetailActivity.class);
+            intent.putExtra(CommonAgr.ID_CURRENT,userID);
+            intent.putExtra(CommonAgr.ID_PARTNER,Common.tripCustomer.getmUserId());
+            intent.putExtra(CommonAgr.KEY_CHAT_USER,"Tung");
+            startActivity(intent);
         });
 
         initImageLoader();
@@ -1171,6 +1185,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (role != null && role.equals("Driver")) {
                 drawExtraRoute();
                 mPickUpBtn.setVisibility(View.VISIBLE);
+                mChatBtn.setVisibility(View.VISIBLE);
             }
         }
         else if (Common.flatStop != null) {

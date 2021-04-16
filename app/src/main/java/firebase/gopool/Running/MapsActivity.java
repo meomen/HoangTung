@@ -35,7 +35,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import firebase.gopool.Chat.ChatDetailActivity;
 import firebase.gopool.Common.Common;
+import firebase.gopool.Common.CommonAgr;
 import firebase.gopool.Home.HomeActivity;
 import firebase.gopool.MapDirectionHelper.FetchURL;
 import firebase.gopool.MapDirectionHelper.TaskLoadedCallback;
@@ -63,7 +65,7 @@ public class MapsActivity extends FragmentActivity implements TaskLoadedCallback
 
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FloatingActionButton mCurrentLocationBtn;
-    private FloatingActionButton mCarLocationBtn;
+    private FloatingActionButton mCarLocationBtn,mChatBtn;
     private Button btn_stop_trip, btn_pick_up,btn_arrive;
 
     private LatLng mCarLocation,preCarLocation;
@@ -87,6 +89,7 @@ public class MapsActivity extends FragmentActivity implements TaskLoadedCallback
         btn_stop_trip = (Button) findViewById(R.id.btn_stop_trip);
         btn_pick_up = (Button) findViewById(R.id.btn_pickup);
         btn_arrive = (Button) findViewById(R.id.btn_arrive);
+        mChatBtn = (FloatingActionButton) findViewById(R.id.btn_chat);
 
 
         userIdDriver = getIntent().getStringExtra("userIdDriver");
@@ -126,6 +129,14 @@ public class MapsActivity extends FragmentActivity implements TaskLoadedCallback
             dialog.show();
         });
         drawTrip();
+
+        mChatBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(MapsActivity.this, ChatDetailActivity.class);
+            intent.putExtra(CommonAgr.ID_CURRENT,userIdDriver);
+            intent.putExtra(CommonAgr.ID_PARTNER,Common.userID);
+            intent.putExtra(CommonAgr.KEY_CHAT_USER,"Minh");
+            startActivity(intent);
+        });
 
     }
 

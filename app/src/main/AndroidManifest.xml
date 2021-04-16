@@ -22,9 +22,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Running.DialogResponeActivity"
-            android:theme="@style/Theme.MaterialComponents.Light.Dialog">
-        </activity>
+        <activity android:name=".Chat.ChatListActivity"></activity>
+        <activity android:name=".Chat.ChatDetailActivity" />
+        <activity
+            android:name=".Running.DialogResponeActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.Dialog" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -40,8 +42,7 @@
         <activity
             android:name=".Running.MapsActivity"
             android:label="@string/title_activity_maps"
-            android:theme="@style/Theme.MaterialComponents.NoActionBar"
-            />
+            android:theme="@style/Theme.MaterialComponents.NoActionBar" />
         <activity
             android:name=".Payment.PaymentActivity"
             android:label="@string/title_activity_payment" />
