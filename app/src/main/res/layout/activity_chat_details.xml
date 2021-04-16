@@ -47,6 +47,7 @@
             android:weightSum="10">
             <ImageView
                 android:id="@+id/img_camera"
+                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -54,6 +55,7 @@
 
             <ImageView
                 android:id="@+id/img_image"
+                android:visibility="invisible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
