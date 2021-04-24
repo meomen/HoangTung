@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.maps.android.PolyUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +28,7 @@ public class DataParser {
         JSONArray jRoutes;
         JSONArray jLegs;
         JSONArray jSteps;
+        ArrayList<LatLng> arrRoute = new ArrayList<>();
         try {
             jRoutes = jObject.getJSONArray("routes");
             /** Traversing all routes */
@@ -42,6 +44,7 @@ public class DataParser {
                         String polyline = "";
                         polyline = (String) ((JSONObject) ((JSONObject) jSteps.get(k)).get("polyline")).get("points");
                         List<LatLng> list = decodePoly(polyline);
+                        arrRoute.addAll(list);
 
                         /** Traversing all points */
                         for (int l = 0; l < list.size(); l++) {
@@ -51,14 +54,23 @@ public class DataParser {
                             path.add(hm);
                         }
                     }
+
                     routes.add(path);
                 }
             }
-            JSONObject json_overview = ((JSONObject) jRoutes.get(0)).getJSONObject("overview_polyline");
-            String points = json_overview.getString("points");
-//            JSONObject point = ((JSONObject) json_overview.getJSONObject("points"));
-            Log.i("Minh",points);
-            Common.poly = points;
+
+//            JSONObject json_overview = ((JSONObject) jRoutes.get(0)).getJSONObject("overview_polyline");
+//            String points = json_overview.getString("points");
+////            JSONObject point = ((JSONObject) json_overview.getJSONObject("points"));
+//            Log.i("Minh",points);
+            String a = PolyUtil.encode(arrRoute);
+            for (int i = 0; i < a.length(); i++) {
+                if(a.charAt(i) == '\\') {
+                    a = a.substring(0, i) + "\\" + a.substring(i, a.length());
+                    i++;
+                }
+            }
+            Common.poly = a;;
 
         } catch (JSONException e) {
             e.printStackTrace();

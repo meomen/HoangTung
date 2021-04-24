@@ -417,6 +417,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .snippet(Common.tripDriver.getmEndAddress());
 
             mMarker2 = mMap.addMarker(markerOptions);
+            mStopTrip.setText("End Trip");
             mStopTrip.setVisibility(View.VISIBLE);
             mChatBtn.setVisibility(View.GONE);
         });
