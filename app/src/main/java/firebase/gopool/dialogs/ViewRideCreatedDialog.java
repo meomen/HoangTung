@@ -9,26 +9,18 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-
 import firebase.gopool.Account.ProfileActivity;
 import firebase.gopool.Home.EditRideActivity;
-import firebase.gopool.Model.AvailableRide;
 import firebase.gopool.R;
-import firebase.gopool.Running.MapsActivity;
 import firebase.gopool.models.OfferRide;
 
 public class ViewRideCreatedDialog extends Dialog implements
@@ -112,9 +104,6 @@ public class ViewRideCreatedDialog extends Dialog implements
                 c.startActivity(intent1);
                 break;
             case R.id.btn_start_trip:
-                Intent intent = new Intent(c, MapsActivity.class);
-                intent.putExtra("RideId",rideID);
-                c.startActivity(intent);
                 break;
             case R.id.dialogCancel:
                 dismiss();

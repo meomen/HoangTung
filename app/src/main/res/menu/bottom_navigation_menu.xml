@@ -7,17 +7,17 @@
         android:icon="@drawable/ic_location"
         android:title="" />
 
-    <item
-        android:id="@+id/menu_rides"
-        android:enabled="true"
-        android:icon="@drawable/ic_notification"
-        android:title="" />
+<!--    <item-->
+<!--        android:id="@+id/menu_rides"-->
+<!--        android:enabled="true"-->
+<!--        android:icon="@drawable/ic_notification"-->
+<!--        android:title="" />-->
 
-    <item
-        android:id="@+id/menu_booked"
-        android:enabled="true"
-        android:icon="@drawable/ic_booked"
-        android:title="" />
+<!--    <item-->
+<!--        android:id="@+id/menu_booked"-->
+<!--        android:enabled="true"-->
+<!--        android:icon="@drawable/ic_booked"-->
+<!--        android:title="" />-->
 
     <item
         android:id="@+id/menu_account"

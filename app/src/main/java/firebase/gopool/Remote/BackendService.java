@@ -1,11 +1,18 @@
 package firebase.gopool.Remote;
 
+import java.util.List;
+
+import firebase.gopool.Model.CheckRouteRequest;
+import firebase.gopool.Model.CheckRouteRespone;
 import firebase.gopool.Model.CreateTripRequest;
 import firebase.gopool.Model.CreateTripRespone;
 import firebase.gopool.Model.GetTripRespone;
 import firebase.gopool.Model.LocationData;
 import firebase.gopool.Model.LocationDriverRespone;
+import firebase.gopool.Model.TripData;
 import firebase.gopool.Model.UpdateLocationRespone;
+import firebase.gopool.Model.UpdateSatusRequest;
+import firebase.gopool.Model.UpdateStatusRespone;
 import firebase.gopool.models.FCMResponse;
 import firebase.gopool.models.Sender;
 import retrofit2.Call;
@@ -23,7 +30,7 @@ public interface BackendService {
     Call<FCMResponse> sendMessage(@Body Sender body);
 
     @GET("location/trip/{id}")
-    Call<GetTripRespone> getTrip(@Path("id") String id);
+    Call<List<TripData>> getTrip(@Path("id") String id);
 
     @GET("location/{id}")
     Call<LocationDriverRespone> getLocationDriver(@Path("id") String id);
@@ -33,4 +40,10 @@ public interface BackendService {
 
     @POST("trip/create")
     Call<CreateTripRespone> createTrip (@Body CreateTripRequest createTripRequest);
+
+    @POST("trip/update/status")
+    Call<UpdateStatusRespone> updateStatus (@Body UpdateSatusRequest updateSatusRequest);
+
+    @POST("trip/check/location")
+    Call<CheckRouteRespone> checkRoute (@Body CheckRouteRequest checkRouteRequest);
 }

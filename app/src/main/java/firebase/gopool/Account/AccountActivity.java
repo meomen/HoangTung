@@ -40,7 +40,7 @@ import firebase.gopool.models.User;
 
 public class AccountActivity extends AppCompatActivity {
     private static final String TAG = "AccountActivity";
-    private static final int ACTIVITY_NUMBER = 3;
+    private static final int ACTIVITY_NUMBER = 1;
 
     private Context mContext = AccountActivity.this;
 

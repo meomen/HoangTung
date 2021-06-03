@@ -36,9 +36,9 @@
                         android:layout_marginBottom="5dp">
 
                         <ImageView
+                            android:id="@+id/profile_logo"
                             android:layout_width="64dp"
                             android:layout_height="64dp"
-                            android:id="@+id/profile_logo"
                             android:background="@drawable/carpool_ride_details" />
 
                         <TextView
@@ -49,7 +49,7 @@
                             android:textStyle="bold"
                             android:id="@+id/usernameTxt"
                             android:layout_marginLeft="80dp"
-                            android:text="Username" />
+                            android:text="Duy Tung" />
 
                         <RatingBar
                             android:id="@+id/ratingBar"
@@ -64,15 +64,6 @@
                             android:numStars="5"
                             android:stepSize="0.1" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="13sp"
-                            android:id="@+id/completedRidesTxt"
-                            android:text="0 Rides"
-                            android:layout_toRightOf="@id/ratingBar"
-                            android:layout_marginTop="21dp"
-                            android:layout_marginLeft="5dp"/>
 
                         <com.google.android.material.floatingactionbutton.FloatingActionButton
                             android:layout_width="wrap_content"
@@ -83,79 +74,79 @@
                             android:src="@drawable/ic_profile"/>
                     </RelativeLayout>
 
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/costLayout"
-                        android:background="@drawable/white_border_bottom"
-                        android:padding="10dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginBottom="5dp">
+<!--                    <RelativeLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:id="@+id/costLayout"-->
+<!--                        android:background="@drawable/white_border_bottom"-->
+<!--                        android:padding="10dp"-->
+<!--                        android:layout_marginLeft="10dp"-->
+<!--                        android:layout_marginRight="10dp"-->
+<!--                        android:layout_marginBottom="5dp">-->
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:id="@+id/costHeadingTxt"
-                            android:text="Cost" />
+<!--                        <TextView-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textSize="14sp"-->
+<!--                            android:id="@+id/costHeadingTxt"-->
+<!--                            android:text="Cost" />-->
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="20sp"
-                            android:id="@+id/costTxt"
-                            android:text="£6.00"
-                            android:textColor="@color/black"
-                            android:textStyle="bold"
-                            android:layout_marginTop="20dp" />
+<!--                        <TextView-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textSize="20sp"-->
+<!--                            android:id="@+id/costTxt"-->
+<!--                            android:text="£6.00"-->
+<!--                            android:textColor="@color/black"-->
+<!--                            android:textStyle="bold"-->
+<!--                            android:layout_marginTop="20dp" />-->
 
-                    </RelativeLayout>
+<!--                    </RelativeLayout>-->
 
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/destinationLayout"
-                        android:background="@drawable/white_border_bottom"
-                        android:padding="10dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginBottom="5dp">
+<!--                    <RelativeLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:id="@+id/destinationLayout"-->
+<!--                        android:background="@drawable/white_border_bottom"-->
+<!--                        android:padding="10dp"-->
+<!--                        android:layout_marginLeft="10dp"-->
+<!--                        android:layout_marginRight="10dp"-->
+<!--                        android:layout_marginBottom="5dp">-->
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:id="@+id/departureTxt"
-                            android:text="Departure time" />
+<!--                        <TextView-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textSize="14sp"-->
+<!--                            android:id="@+id/departureTxt"-->
+<!--                            android:text="Departure time" />-->
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="16sp"
-                            android:id="@+id/timeTxt"
-                            android:text="5:00 - 5:30 PM"
-                            android:textColor="@color/black"
-                            android:layout_marginTop="20dp" />
+<!--                        <TextView-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textSize="16sp"-->
+<!--                            android:id="@+id/timeTxt"-->
+<!--                            android:text="5:00 - 5:30 PM"-->
+<!--                            android:textColor="@color/black"-->
+<!--                            android:layout_marginTop="20dp" />-->
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:layout_marginLeft="150dp"
-                            android:id="@+id/extraTimeAddedTxt"
-                            android:text="Extra time added" />
+<!--                        <TextView-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textSize="14sp"-->
+<!--                            android:layout_marginLeft="150dp"-->
+<!--                            android:id="@+id/extraTimeAddedTxt"-->
+<!--                            android:text="Extra time added" />-->
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="16sp"
-                            android:id="@+id/extraTimeTxt"
-                            android:text="5 min"
-                            android:textColor="@color/black"
-                            android:layout_marginLeft="150dp"
-                            android:layout_marginTop="20dp" />
-                    </RelativeLayout>
+<!--                        <TextView-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textSize="16sp"-->
+<!--                            android:id="@+id/extraTimeTxt"-->
+<!--                            android:text="5 min"-->
+<!--                            android:textColor="@color/black"-->
+<!--                            android:layout_marginLeft="150dp"-->
+<!--                            android:layout_marginTop="20dp" />-->
+<!--                    </RelativeLayout>-->
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -170,7 +161,7 @@
                         <ImageView
                             android:layout_width="23dp"
                             android:layout_height="130dp"
-                            android:id="@+id/profile_logo"
+                            android:id="@+id/profile_logo_1"
                             android:background="@drawable/destination_line" />
 
                         <TextView
@@ -183,7 +174,7 @@
                             android:text="From:" />
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
                             android:layout_below="@id/locationTxt"
@@ -213,25 +204,25 @@
 
 
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:layout_centerHorizontal="true"
-                            android:id="@+id/durationConfirm"
-                            android:layout_below="@id/streetName2Txt"
-                            android:layout_marginTop="50dp"
-                            android:text="Duration: 1 hour 14 mins" />
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textSize="14sp"-->
+<!--                            android:layout_centerHorizontal="true"-->
+<!--                            android:id="@+id/durationConfirm"-->
+<!--                            android:layout_below="@id/streetName2Txt"-->
+<!--                            android:layout_marginTop="50dp"-->
+<!--                            android:text="Duration: 1 hour 14 mins" />-->
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:layout_centerHorizontal="true"
-                            android:id="@+id/pickupLocationConfirm"
-                            android:layout_below="@id/durationConfirm"
-                            android:layout_marginTop="10dp"
-                            android:text="Pickup: " />
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textSize="14sp"-->
+<!--                            android:layout_centerHorizontal="true"-->
+<!--                            android:id="@+id/pickupLocationConfirm"-->
+<!--                            android:layout_below="@id/durationConfirm"-->
+<!--                            android:layout_marginTop="10dp"-->
+<!--                            android:text="Pickup: " />-->
 
 
                     </RelativeLayout>
